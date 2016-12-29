@@ -13,11 +13,16 @@ const ()
 // Primitive is the base of all elements in source code
 type Primitive interface {
 	str() string
+	isList() bool
 }
 
 // List Basic Type
 type List struct {
 	start *listNode
+}
+
+func (l List) isList() bool {
+	return true
 }
 
 func (l List) str() string {
@@ -47,6 +52,30 @@ type Integer struct {
 	value int
 }
 
+func (i Integer) str() string {
+	return fmt.Sprintf("%v", i.value)
+}
+
+func (i Integer) isList() bool {
+	return false
+}
+
+// Truth is a base value of bool type
+type Truth struct {
+	value bool
+}
+
+func (t Truth) str() string {
+	if t.value {
+		return "t"
+	}
+	return "nil"
+}
+
+func (t Truth) isList() bool {
+	return false
+}
+
 // Operator is a basic operator type
 type Operator struct {
 	value string
@@ -56,8 +85,8 @@ func (o Operator) str() string {
 	return o.value
 }
 
-func (i Integer) str() string {
-	return fmt.Sprintf("%v", i.value)
+func (o Operator) isList() bool {
+	return false
 }
 
 // ParseSingle Parses out a primitive

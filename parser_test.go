@@ -19,6 +19,29 @@ func TestListRep(t *testing.T) {
 	}
 }
 
+func TestTruthRep(t *testing.T) {
+	v := &Truth{value: false}
+	if v.str() != "nil" {
+		t.Errorf("Truth str method fails: %v from %v", v.str(), v)
+	}
+}
+
+var islistdata = []struct {
+	p Primitive
+	r bool
+}{
+	{&Truth{}, false},
+	{&Operator{}, false},
+}
+
+func TestListAssert(t *testing.T) {
+	for _, test := range islistdata {
+		if test.p.isList() != test.r {
+			t.Errorf("Error in list assertion %v (%v)", test.p, test.p.isList())
+		}
+	}
+}
+
 var parsetestdata = []struct {
 	expression string
 	parsed     Primitive
@@ -33,6 +56,10 @@ var parsetestdata = []struct {
 	{"(1 (2 3))", List{start: &listNode{value: Integer{value: 1},
 		next: &listNode{value: List{start: &listNode{value: Integer{value: 2},
 			next: &listNode{value: Integer{value: 3}}}}}}}},
+	{"(oddp (+ 1 6))", List{start: &listNode{value: Operator{value: "oddp"},
+		next: &listNode{value: List{start: &listNode{value: Operator{value: "+"},
+			next: &listNode{value: Integer{value: 1},
+				next: &listNode{value: Integer{value: 6}}}}}}}}},
 }
 
 func TestParse(t *testing.T) {
