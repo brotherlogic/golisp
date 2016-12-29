@@ -24,8 +24,15 @@ var parsetestdata = []struct {
 	parsed     Primitive
 }{
 	{"5", Integer{value: 5}},
-	{"(1 2 3)", List{start: &listNode{value: Integer{value: 1}, next: &listNode{value: Integer{value: 2}, next: &listNode{value: Integer{value: 3}}}}}},
-	{"(+ 2 3)", List{start: &listNode{value: Operator{value: "+"}, next: &listNode{value: Integer{value: 2}, next: &listNode{value: Integer{value: 3}}}}}},
+	{"(1 2 3)", List{start: &listNode{value: Integer{value: 1},
+		next: &listNode{value: Integer{value: 2},
+			next: &listNode{value: Integer{value: 3}}}}}},
+	{"(+ 2 3)", List{start: &listNode{value: Operator{value: "+"},
+		next: &listNode{value: Integer{value: 2},
+			next: &listNode{value: Integer{value: 3}}}}}},
+	{"(1 (2 3))", List{start: &listNode{value: Integer{value: 1},
+		next: &listNode{value: List{start: &listNode{value: Integer{value: 2},
+			next: &listNode{value: Integer{value: 3}}}}}}}},
 }
 
 func TestParse(t *testing.T) {
