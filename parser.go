@@ -5,6 +5,7 @@ import (
 	"log"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 const ()
@@ -59,37 +60,67 @@ func (i Integer) str() string {
 	return fmt.Sprintf("%v", i.value)
 }
 
-//Parse parses a string to a primitive
-func Parse(str string) Primitive {
-	listReg, _ := regexp.Compile("[\\s\\(\\)]+")
-
+// ParseSingle Parses out a primitive
+func ParseSingle(str string) Primitive {
 	match, _ := regexp.MatchString("^[0-9]+$", str)
 	if match {
 		val, _ := strconv.Atoi(str)
 		return Integer{value: val}
 	}
 
-	// Lists start with (
-	if str[0] == '(' {
-		elems := listReg.Split(str, -1)
-		log.Printf("FROM %v to :%v (%v)", str, elems, len(elems))
-		start := listNode{}
-		follow := &start
-		first := true
-		for _, val := range elems {
-			if len(val) > 0 {
-				if !first {
-					follow.next = &listNode{}
-					follow = follow.next
-				}
-				follow.value = Parse(val)
-				first = false
-			}
-		}
-
-		return List{start: &start}
-	}
-
 	//Otherwise, assume operator
 	return Operator{value: str}
+}
+
+//Parse parses a string to a primitive
+func Parse(str string) Primitive {
+	log.Printf("PARSING %v", str)
+	listReg, _ := regexp.Compile("\\s+")
+
+	// Lists should always start with '('
+	if str[0] != '(' {
+		return ParseSingle(str)
+	}
+
+	parseString := strings.Replace(strings.Replace(str, "(", "( ", -1), ")", " )", -1)
+	elems := listReg.Split(parseString, -1)
+	log.Printf("ELEMS = %v", elems)
+	var stack []*listNode
+	stackPointer := 0
+	current := &listNode{}
+	stack = append(stack, current)
+	for _, val := range elems[1 : len(elems)-1] {
+		log.Printf("WORKING on %v", val)
+		if val == "(" {
+			newln := &listNode{}
+			if current.value != nil {
+				newnd := &listNode{}
+				current.next = newnd
+				current = newnd
+			}
+			current.value = List{start: newln}
+			stack = append(stack, newln)
+			current = newln
+			stackPointer++
+			log.Printf("FOUND %p and %p", &stack[stackPointer], &newln)
+		} else if val == ")" {
+			stackPointer--
+			current = stack[stackPointer]
+		} else {
+			if current.value != nil {
+				log.Printf("Adding node to %v -> %v", current, stack[stackPointer])
+				newnd := &listNode{}
+				current.next = newnd
+				current = newnd
+			}
+			current.value = ParseSingle(val)
+			log.Printf("Set up current: %v (%v from %v)", current, stack[stackPointer], val)
+		}
+	}
+
+	log.Printf("STACK = %v (%v)", stack, stackPointer)
+	for i, v := range stack {
+		log.Printf("%v. %v %p", i, v, v)
+	}
+	return List{start: stack[0]}
 }
