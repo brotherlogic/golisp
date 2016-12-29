@@ -31,10 +31,18 @@ func (l List) str() string {
 	first := true
 	for node != nil {
 		if first {
-			rep += node.value.str()
+			if node.value == nil {
+				rep += "nil"
+			} else {
+				rep += node.value.str()
+			}
 			first = false
 		} else {
-			rep += " " + node.value.str()
+			if node.value == nil {
+				rep += " nil"
+			} else {
+				rep += " " + node.value.str()
+			}
 		}
 		node = node.next
 	}
@@ -57,6 +65,20 @@ func (i Integer) str() string {
 }
 
 func (i Integer) isList() bool {
+	return false
+}
+
+// Ratio is a base value of ratio type
+type Ratio struct {
+	numerator   int
+	denominator int
+}
+
+func (r Ratio) str() string {
+	return fmt.Sprintf("%v/%v", r.numerator, r.denominator)
+}
+
+func (r Ratio) isList() bool {
 	return false
 }
 
@@ -119,22 +141,28 @@ func Parse(str string) Primitive {
 	current := &listNode{}
 	stack = append(stack, current)
 	for _, val := range elems[1 : len(elems)-1] {
-		log.Printf("WORKING on %v", val)
+		if stack[0].value != nil {
+			log.Printf("WORKING on %v with %v", val, List{start: stack[0]}.str())
+		} else {
+			log.Printf("WORKING on %v with %v", val, nil)
+		}
 		if val == "(" {
 			newln := &listNode{}
 			if current.value != nil {
+				log.Printf("ADDING to %v with %v", current, List{start: stack[0]}.str())
 				newnd := &listNode{}
 				current.next = newnd
 				current = newnd
+				log.Printf("RESULT is %v with %v", current, List{start: stack[0]}.str())
 			}
 			current.value = List{start: newln}
-			stack = append(stack, newln)
+			stack = append(stack, current)
 			current = newln
 			stackPointer++
 			log.Printf("FOUND %p and %p", &stack[stackPointer], &newln)
 		} else if val == ")" {
-			stackPointer--
 			current = stack[stackPointer]
+			stackPointer--
 		} else {
 			if current.value != nil {
 				log.Printf("Adding node to %v -> %v", current, stack[stackPointer])

@@ -11,6 +11,7 @@ var testdata = []struct {
 	{"(+ 1 6)", "7"},
 	{"(oddp (+ 1 6))", "t"},
 	{"(* 3 (+ 1 6))", "21"},
+	{"(/ (* 2 11) (+ 1 6))", "22/7"},
 }
 
 func TestGolisp(t *testing.T) {

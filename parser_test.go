@@ -32,6 +32,7 @@ var islistdata = []struct {
 }{
 	{&Truth{}, false},
 	{&Operator{}, false},
+	{&Ratio{}, false},
 }
 
 func TestListAssert(t *testing.T) {
@@ -60,6 +61,13 @@ var parsetestdata = []struct {
 		next: &listNode{value: List{start: &listNode{value: Operator{value: "+"},
 			next: &listNode{value: Integer{value: 1},
 				next: &listNode{value: Integer{value: 6}}}}}}}}},
+	{"(/ (* 2 11) (+ 1 6))", List{start: &listNode{value: Operator{value: "/"},
+		next: &listNode{value: List{start: &listNode{value: Operator{value: "*"},
+			next: &listNode{value: Integer{value: 2},
+				next: &listNode{value: Integer{value: 11}}}}},
+			next: &listNode{value: List{start: &listNode{value: Operator{value: "+"},
+				next: &listNode{value: Integer{value: 1},
+					next: &listNode{value: Integer{value: 6}}}}}}}}}},
 }
 
 func TestParse(t *testing.T) {
