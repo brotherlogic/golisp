@@ -21,6 +21,10 @@ func Eval(p Primitive) Primitive {
 		} else if operator.value == "oddp" {
 			first := Eval(l.start.next.value).(Integer)
 			return Truth{value: first.value%2 == 1}
+		} else if operator.value == "*" {
+			first := Eval(l.start.next.value).(Integer)
+			second := Eval(l.start.next.next.value).(Integer)
+			return Integer{value: first.value * second.value}
 		}
 	}
 

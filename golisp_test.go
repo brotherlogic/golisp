@@ -10,6 +10,7 @@ var testdata = []struct {
 	{"(+ 2 3)", "5"},
 	{"(+ 1 6)", "7"},
 	{"(oddp (+ 1 6))", "t"},
+	{"(* 3 (+ 1 6))", "21"},
 }
 
 func TestGolisp(t *testing.T) {
