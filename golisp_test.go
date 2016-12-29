@@ -6,8 +6,9 @@ var testdata = []struct {
 	expression string
 	result     string
 }{
-	{"(+ 2 3)", "5"},
 	{"(1 2 3)", "(1 2 3)"},
+	{"(+ 2 3)", "5"},
+	{"(+ 1 6)", "7"},
 }
 
 func TestGolisp(t *testing.T) {
