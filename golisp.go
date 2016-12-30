@@ -29,6 +29,10 @@ func Eval(p Primitive) Primitive {
 			first := Eval(l.start.next.value).(Integer)
 			second := Eval(l.start.next.next.value).(Integer)
 			return Ratio{numerator: first.value, denominator: second.value}
+		} else if operator.value == "equal" {
+			first := Eval(l.start.next.value).(Integer)
+			second := Eval(l.start.next.next.value).(Integer)
+			return Truth{value: first.value == second.value}
 		}
 	}
 
