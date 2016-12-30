@@ -25,6 +25,10 @@ func Eval(p Primitive) Primitive {
 			first := Eval(l.start.next.value).(Integer)
 			second := Eval(l.start.next.next.value).(Integer)
 			return Integer{value: first.value * second.value}
+		} else if operator.value == "/" {
+			first := Eval(l.start.next.value).(Integer)
+			second := Eval(l.start.next.next.value).(Integer)
+			return Ratio{numerator: first.value, denominator: second.value}
 		}
 	}
 
