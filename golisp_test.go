@@ -3,27 +3,55 @@ package golisp
 import "testing"
 
 var testdata = []struct {
-	expression string
-	result     string
+	expression []string
+	result     []string
 }{
-	{"(1 2 3)", "(1 2 3)"},
-	{"(+ 2 3)", "5"},
-	{"(+ 1 6)", "7"},
-	{"(oddp (+ 1 6))", "t"},
-	{"(* 3 (+ 1 6))", "21"},
-	{"(/ (* 2 11) (+ 1 6))", "22/7"},
-	{"23", "23"},
-	{"t", "t"},
-	{"nil", "nil"},
-	{"(equal (+ 7 5) (* 2 8))", "nil"},
+	{[]string{"(1 2 3)"}, []string{"(1 2 3)"}},
+	{[]string{"(+ 2 3)"}, []string{"5"}},
+	{[]string{"(+ 1 6)"}, []string{"7"}},
+	{[]string{"(oddp (+ 1 6))"}, []string{"t"}},
+	{[]string{"(* 3 (+ 1 6))"}, []string{"21"}},
+	{[]string{"(/ (* 2 11) (+ 1 6))"}, []string{"22/7"}},
+	{[]string{"23"}, []string{"23"}},
+	{[]string{"t"}, []string{"t"}},
+	{[]string{"nil"}, []string{"nil"}},
+	{[]string{"(equal (+ 7 5) (* 2 8))"}, []string{"nil"}},
+	{[]string{"(/ (+ 6 8) 2.0)"}, []string{"7.0"}},
+	{[]string{"(defun average (x y) (/ (+ x y) 2.0))", "(average 6 8)"}, []string{"nil", "7.0"}},
+}
+
+var baddata = []struct {
+	expression []string
+	fail       []bool
+}{
+	{[]string{"(defun average (x y) (/ (+ x y) 2.0))", "(average 6 8 7)"}, []bool{false, true}},
+}
+
+func TestGolispBad(t *testing.T) {
+	for _, test := range baddata {
+		i := &Interpreter{}
+		for j := range test.expression {
+			e := Parse(test.expression[j])
+			p, err := i.Eval(e.(Primitive))
+			if test.fail[j] && err == nil {
+				t.Errorf("Executing %v has not failed and it should have done: %v", e.str(), p)
+			}
+		}
+	}
 }
 
 func TestGolisp(t *testing.T) {
 	for _, test := range testdata {
-		e := Parse(test.expression)
-		r := Eval(e.(Primitive))
-		if r.str() != test.result {
-			t.Errorf("%v did not lead to %v, it lead to %v", test.expression, test.result, r.str())
+		i := &Interpreter{}
+		for j := range test.expression {
+			e := Parse(test.expression[j])
+			r, err := i.Eval(e.(Primitive))
+			if err != nil {
+				t.Errorf("Executing %v has failed for %v", e.str(), err)
+			}
+			if r.str() != test.result[j] {
+				t.Errorf("%v did not lead to %v, it lead to %v", test.expression[j], test.result[j], r.str())
+			}
 		}
 	}
 }

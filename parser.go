@@ -8,12 +8,17 @@ import (
 	"strings"
 )
 
-const ()
+const (
+	nilstr string = "nil"
+)
 
 // Primitive is the base of all elements in source code
 type Primitive interface {
 	str() string
 	isList() bool
+	isSymbol() bool
+	isInt() bool
+	floatVal() float64
 }
 
 // List Basic Type
@@ -25,24 +30,38 @@ func (l List) isList() bool {
 	return true
 }
 
+func (l List) isSymbol() bool {
+	return false
+}
+
+func (l List) isInt() bool {
+	return false
+}
+
+func (l List) floatVal() float64 {
+	return -1.0
+}
+
+func (l List) len() int {
+	count := 0
+	st := l.start
+	for st.next != nil {
+		count++
+		st = st.next
+	}
+	return count
+}
+
 func (l List) str() string {
 	rep := "("
 	node := l.start
 	first := true
 	for node != nil {
 		if first {
-			if node.value == nil {
-				rep += "nil"
-			} else {
-				rep += node.value.str()
-			}
+			rep += node.value.str()
 			first = false
 		} else {
-			if node.value == nil {
-				rep += " nil"
-			} else {
-				rep += " " + node.value.str()
-			}
+			rep += " " + node.value.str()
 		}
 		node = node.next
 	}
@@ -68,6 +87,43 @@ func (i Integer) isList() bool {
 	return false
 }
 
+func (i Integer) isSymbol() bool {
+	return false
+}
+
+func (i Integer) isInt() bool {
+	return true
+}
+
+func (i Integer) floatVal() float64 {
+	return float64(i.value)
+}
+
+// Float is a base value of float type
+type Float struct {
+	value float64
+}
+
+func (f Float) str() string {
+	return fmt.Sprintf("%.1f", f.value)
+}
+
+func (f Float) isList() bool {
+	return false
+}
+
+func (f Float) isSymbol() bool {
+	return false
+}
+
+func (f Float) isInt() bool {
+	return false
+}
+
+func (f Float) floatVal() float64 {
+	return f.value
+}
+
 // Ratio is a base value of ratio type
 type Ratio struct {
 	numerator   int
@@ -82,6 +138,18 @@ func (r Ratio) isList() bool {
 	return false
 }
 
+func (r Ratio) isSymbol() bool {
+	return false
+}
+
+func (r Ratio) isInt() bool {
+	return false
+}
+
+func (r Ratio) floatVal() float64 {
+	return float64(r.numerator) / float64(r.denominator)
+}
+
 // Truth is a base value of bool type
 type Truth struct {
 	value bool
@@ -91,24 +159,71 @@ func (t Truth) str() string {
 	if t.value {
 		return "t"
 	}
-	return "nil"
+	return nilstr
 }
 
 func (t Truth) isList() bool {
 	return false
 }
 
-// Operator is a basic operator type
-type Operator struct {
+func (t Truth) isSymbol() bool {
+	return false
+}
+
+func (t Truth) isInt() bool {
+	return false
+}
+
+func (t Truth) floatVal() float64 {
+	return -1.0
+}
+
+// Symbol is a basic operator type
+type Symbol struct {
 	value string
 }
 
-func (o Operator) str() string {
-	return o.value
+func (s Symbol) str() string {
+	return s.value
 }
 
-func (o Operator) isList() bool {
+func (s Symbol) isList() bool {
 	return false
+}
+
+func (s Symbol) isSymbol() bool {
+	return true
+}
+
+func (s Symbol) isInt() bool {
+	return false
+}
+
+func (s Symbol) floatVal() float64 {
+	return -1.0
+}
+
+// Nil is a basic nil type
+type Nil struct{}
+
+func (n Nil) str() string {
+	return nilstr
+}
+
+func (n Nil) isList() bool {
+	return false
+}
+
+func (n Nil) isSymbol() bool {
+	return false
+}
+
+func (n Nil) isInt() bool {
+	return false
+}
+
+func (n Nil) floatVal() float64 {
+	return -1.0
 }
 
 // ParseSingle Parses out a primitive
@@ -119,8 +234,25 @@ func ParseSingle(str string) Primitive {
 		return Integer{value: val}
 	}
 
+	//Check for floats
+	match, _ = regexp.MatchString("^[0-9]+\\.[0.9]+", str)
+	if match {
+		val, _ := strconv.ParseFloat(str, 64)
+		return Float{value: val}
+	}
 	//Otherwise, assume operator
-	return Operator{value: str}
+	return Symbol{value: str}
+}
+
+type listStack []*listNode
+
+func (s listStack) Push(v *listNode) listStack {
+	return append(s, v)
+}
+
+func (s listStack) Pop() (listStack, *listNode) {
+	l := len(s)
+	return s[:l-1], s[l-1]
 }
 
 //Parse parses a string to a primitive
@@ -136,48 +268,31 @@ func Parse(str string) Primitive {
 	parseString := strings.Replace(strings.Replace(str, "(", "( ", -1), ")", " )", -1)
 	elems := listReg.Split(parseString, -1)
 	log.Printf("ELEMS = %v", elems)
-	var stack []*listNode
-	stackPointer := 0
+	stack := listStack{}
 	current := &listNode{}
-	stack = append(stack, current)
+	stack = stack.Push(current)
 	for _, val := range elems[1 : len(elems)-1] {
-		if stack[0].value != nil {
-			log.Printf("WORKING on %v with %v", val, List{start: stack[0]}.str())
-		} else {
-			log.Printf("WORKING on %v with %v", val, nil)
-		}
 		if val == "(" {
 			newln := &listNode{}
 			if current.value != nil {
-				log.Printf("ADDING to %v with %v", current, List{start: stack[0]}.str())
 				newnd := &listNode{}
 				current.next = newnd
 				current = newnd
-				log.Printf("RESULT is %v with %v", current, List{start: stack[0]}.str())
 			}
 			current.value = List{start: newln}
-			stack = append(stack, current)
+			stack = stack.Push(current)
 			current = newln
-			stackPointer++
-			log.Printf("FOUND %p and %p", &stack[stackPointer], &newln)
 		} else if val == ")" {
-			current = stack[stackPointer]
-			stackPointer--
+			stack, current = stack.Pop()
 		} else {
 			if current.value != nil {
-				log.Printf("Adding node to %v -> %v", current, stack[stackPointer])
 				newnd := &listNode{}
 				current.next = newnd
 				current = newnd
 			}
 			current.value = ParseSingle(val)
-			log.Printf("Set up current: %v (%v from %v)", current, stack[stackPointer], val)
 		}
 	}
-
-	log.Printf("STACK = %v (%v)", stack, stackPointer)
-	for i, v := range stack {
-		log.Printf("%v. %v %p", i, v, v)
-	}
-	return List{start: stack[0]}
+	stack, sNode := stack.Pop()
+	return List{start: sNode}
 }
