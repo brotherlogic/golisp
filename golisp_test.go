@@ -15,6 +15,7 @@ var testdata = []struct {
 	{"23", "23"},
 	{"t", "t"},
 	{"nil", "nil"},
+	{"(equal (+ 7 5) (* 2 8))", "nil"},
 }
 
 func TestGolisp(t *testing.T) {
