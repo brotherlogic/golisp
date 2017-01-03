@@ -47,6 +47,7 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 	// All evluatable lists start with an symbol
 	symbol, found := l.start.value.(Symbol)
 	if found {
+		log.Printf("SYMBOL %v", symbol.value)
 		if symbol.value == "+" {
 			first, _ := i.Eval(l.start.next.value)
 			second, _ := i.Eval(l.start.next.next.value)
@@ -73,6 +74,7 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			op := Operation{name: l.start.next.value.str(),
 				binding: l.start.next.next.value.(List),
 				expr:    l.start.next.next.next.value.(List)}
+			log.Printf("OP = %v", op)
 			i.ops = append(i.ops, op)
 			return Nil{}, nil
 		}
