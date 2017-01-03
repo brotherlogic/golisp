@@ -18,6 +18,8 @@ var testdata = []struct {
 	{[]string{"(equal (+ 7 5) (* 2 8))"}, []string{"nil"}},
 	{[]string{"(/ (+ 6 8) 2.0)"}, []string{"7.0"}},
 	{[]string{"(defun average (x y) (/ (+ x y) 2.0))", "(average 6 8)"}, []string{"nil", "7.0"}},
+	{[]string{"(defun square (n) (* n n))", "(square 2)"}, []string{"nil", "4"}},
+	{[]string{"(defun total-cost (quantity price handling-charge) (+ (* quantity price) handling-charge))", "(total-cost 2 3 4)"}, []string{"nil", "10"}},
 }
 
 var baddata = []struct {

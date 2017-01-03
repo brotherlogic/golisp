@@ -294,5 +294,6 @@ func Parse(str string) Primitive {
 		}
 	}
 	stack, sNode := stack.Pop()
+	log.Printf("PARSE RESULT = %v", List{start: sNode}.str())
 	return List{start: sNode}
 }
