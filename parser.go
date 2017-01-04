@@ -105,7 +105,11 @@ type Float struct {
 }
 
 func (f Float) str() string {
-	return fmt.Sprintf("%.1f", f.value)
+	val := strconv.FormatFloat(f.value, 'f', -1, 64)
+	if strings.Contains(val, ".") {
+		return val
+	}
+	return val + ".0"
 }
 
 func (f Float) isList() bool {

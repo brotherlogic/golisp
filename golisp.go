@@ -24,6 +24,15 @@ type Operation struct {
 	expr    List
 }
 
+// Init prepares our interpreter
+func Init() *Interpreter {
+	i := &Interpreter{}
+
+	i.vars = append(i.vars, Variable{name: "pi", value: Float{value: 3.14159}})
+
+	return i
+}
+
 // Eval evaluates lisp expressions
 func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 	log.Printf("EVAL: %v with %v", p.str(), i)
