@@ -28,6 +28,7 @@ var baddata = []struct {
 	fail       []bool
 }{
 	{[]string{"(defun average (x y) (/ (+ x y) 2.0))", "(average 6 8 7)"}, []bool{false, true}},
+	{[]string{"(equal kirk spock)"}, []bool{true}},
 }
 
 func TestGolispBad(t *testing.T) {

@@ -2,6 +2,7 @@ package golisp
 
 import (
 	"errors"
+	"fmt"
 	"log"
 )
 
@@ -29,6 +30,8 @@ func Init() *Interpreter {
 	i := &Interpreter{}
 
 	i.vars = append(i.vars, Variable{name: "pi", value: Float{value: 3.14159}})
+	i.vars = append(i.vars, Variable{name: "t", value: Truth{value: true}})
+	i.vars = append(i.vars, Variable{name: "nil", value: Nil{}})
 
 	return i
 }
@@ -47,6 +50,7 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 					return v.value, nil
 				}
 			}
+			return nil, fmt.Errorf("Cannot convert %v into symbol", p)
 		}
 
 		return p, nil
@@ -76,8 +80,11 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			}
 			return Float{value: first.floatVal() / second.floatVal()}, nil
 		} else if symbol.value == "equal" {
-			first, _ := i.Eval(l.start.next.value)
-			second, _ := i.Eval(l.start.next.next.value)
+			first, errf := i.Eval(l.start.next.value)
+			second, errs := i.Eval(l.start.next.next.value)
+			if errf != nil || errs != nil {
+				return nil, fmt.Errorf("Error in eval %v or %v", errf, errs)
+			}
 			return Truth{value: first.(Integer).value == second.(Integer).value}, nil
 		} else if symbol.value == "defun" {
 			op := Operation{name: l.start.next.value.str(),
