@@ -21,6 +21,7 @@ var testdata = []struct {
 	{[]string{"(defun square (n) (* n n))", "(square 2)"}, []string{"nil", "4"}},
 	{[]string{"(defun total-cost (quantity price handling-charge) (+ (* quantity price) handling-charge))", "(total-cost 2 3 4)"}, []string{"nil", "10"}},
 	{[]string{"pi"}, []string{"3.14159"}},
+	{[]string{"(equal 'kirk 'spock)"}, []string{"nil"}},
 }
 
 var baddata = []struct {
@@ -52,8 +53,7 @@ func TestGolisp(t *testing.T) {
 			r, err := i.Eval(e.(Primitive))
 			if err != nil {
 				t.Errorf("Executing %v has failed for %v", e.str(), err)
-			}
-			if r.str() != test.result[j] {
+			} else if r.str() != test.result[j] {
 				t.Errorf("%v did not lead to %v, it lead to %v", test.expression[j], test.result[j], r.str())
 			}
 		}

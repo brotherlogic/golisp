@@ -85,7 +85,10 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			if errf != nil || errs != nil {
 				return nil, fmt.Errorf("Error in eval %v or %v", errf, errs)
 			}
-			return Truth{value: first.(Integer).value == second.(Integer).value}, nil
+			if first.isInt() && second.isInt() {
+				return Truth{value: first.(Integer).value == second.(Integer).value}, nil
+			}
+			return Truth{value: first.(String).value == second.(String).value}, nil
 		} else if symbol.value == "defun" {
 			op := Operation{name: l.start.next.value.str(),
 				binding: l.start.next.next.value.(List),

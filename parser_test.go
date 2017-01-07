@@ -27,21 +27,25 @@ func TestTruthRep(t *testing.T) {
 }
 
 var testData = []struct {
-	p  Primitive
-	l  bool
-	i  bool
-	s  bool
-	fv float64
+	p   Primitive
+	l   bool
+	i   bool
+	s   bool
+	fv  float64
+	str bool
 }{
-	{&Truth{}, false, false, false, -1.0},
-	{&Symbol{}, false, false, true, -1.0},
-	{&Ratio{numerator: 1, denominator: 2}, false, false, false, 0.5},
-	{&Nil{}, false, false, false, -1.0},
-	{&List{}, true, false, false, -1.0},
+	{&Truth{}, false, false, false, -1.0, false},
+	{&Symbol{}, false, false, true, -1.0, false},
+	{&Ratio{numerator: 1, denominator: 2}, false, false, false, 0.5, false},
+	{&Nil{}, false, false, false, -1.0, false},
+	{&List{}, true, false, false, -1.0, false},
+	{&String{}, false, false, false, -1.0, true},
+	{&Integer{value: 5}, false, true, false, 5.0, false},
+	{&Float{value: 1.0}, false, false, false, 1.0, false},
 }
 
 func TestListAssert(t *testing.T) {
-	for _, test := range testData {
+	for i, test := range testData {
 		if test.p.isList() != test.l {
 			t.Errorf("Error in list assertion %v (%v)", test.p, test.p.isList())
 		}
@@ -53,6 +57,9 @@ func TestListAssert(t *testing.T) {
 		}
 		if test.p.floatVal() != test.fv {
 			t.Errorf("Error in float val assertion %v (%v)", test.fv, test.p.floatVal())
+		}
+		if test.p.isStr() != test.str {
+			t.Errorf("Error in str assertion %v (%v) for %v", test.s, test.p.isStr(), i)
 		}
 	}
 }
