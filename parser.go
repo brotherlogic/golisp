@@ -19,6 +19,7 @@ type Primitive interface {
 	isSymbol() bool
 	isInt() bool
 	floatVal() float64
+	isStr() bool
 }
 
 // List Basic Type
@@ -38,7 +39,39 @@ func (l List) isInt() bool {
 	return false
 }
 
+func (l List) isStr() bool {
+	return false
+}
+
 func (l List) floatVal() float64 {
+	return -1.0
+}
+
+// String Basic Type
+type String struct {
+	value string
+}
+
+func (s String) str() string {
+	return s.value
+}
+
+func (s String) isList() bool {
+	return false
+}
+
+func (s String) isSymbol() bool {
+	return false
+}
+
+func (s String) isInt() bool {
+	return false
+}
+func (s String) isStr() bool {
+	return true
+}
+
+func (s String) floatVal() float64 {
 	return -1.0
 }
 
@@ -95,6 +128,10 @@ func (i Integer) isInt() bool {
 	return true
 }
 
+func (i Integer) isStr() bool {
+	return false
+}
+
 func (i Integer) floatVal() float64 {
 	return float64(i.value)
 }
@@ -124,6 +161,10 @@ func (f Float) isInt() bool {
 	return false
 }
 
+func (f Float) isStr() bool {
+	return false
+}
+
 func (f Float) floatVal() float64 {
 	return f.value
 }
@@ -147,6 +188,10 @@ func (r Ratio) isSymbol() bool {
 }
 
 func (r Ratio) isInt() bool {
+	return false
+}
+
+func (r Ratio) isStr() bool {
 	return false
 }
 
@@ -178,6 +223,10 @@ func (t Truth) isInt() bool {
 	return false
 }
 
+func (t Truth) isStr() bool {
+	return false
+}
+
 func (t Truth) floatVal() float64 {
 	return -1.0
 }
@@ -200,6 +249,10 @@ func (s Symbol) isSymbol() bool {
 }
 
 func (s Symbol) isInt() bool {
+	return false
+}
+
+func (s Symbol) isStr() bool {
 	return false
 }
 
@@ -226,6 +279,10 @@ func (n Nil) isInt() bool {
 	return false
 }
 
+func (n Nil) isStr() bool {
+	return false
+}
+
 func (n Nil) floatVal() float64 {
 	return -1.0
 }
@@ -244,6 +301,13 @@ func ParseSingle(str string) Primitive {
 		val, _ := strconv.ParseFloat(str, 64)
 		return Float{value: val}
 	}
+
+	//Check for strings
+	match, _ = regexp.MatchString("^'\\w+", str)
+	if match {
+		return String{value: str[1:len(str)]}
+	}
+
 	//Otherwise, assume operator
 	return Symbol{value: str}
 }
