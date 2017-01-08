@@ -79,6 +79,15 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 				return Ratio{numerator: first.(Integer).value, denominator: second.(Integer).value}, nil
 			}
 			return Float{value: first.floatVal() / second.floatVal()}, nil
+		} else if symbol.value == "first" {
+			first, err := i.Eval(l.start.next.value)
+			if err != nil {
+				return nil, err
+			}
+			if first.isList() {
+				v, err := i.Eval(first.(List).start.value)
+				return v, err
+			}
 		} else if symbol.value == "equal" {
 			first, errf := i.Eval(l.start.next.value)
 			second, errs := i.Eval(l.start.next.next.value)
@@ -141,5 +150,5 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 		}
 	}
 
-	return l, nil
+	return nil, errors.New("Error! '" + l.start.value.str() + "' undefined function")
 }
