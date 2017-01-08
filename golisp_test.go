@@ -22,6 +22,7 @@ var testdata = []struct {
 	{[]string{"(defun total-cost (quantity price handling-charge) (+ (* quantity price) handling-charge))", "(total-cost 2 3 4)"}, []string{"nil", "10"}},
 	{[]string{"pi"}, []string{"3.14159"}},
 	{[]string{"(equal 'kirk 'spock)"}, []string{"nil"}},
+	{[]string{"(list 'james t 'kirk)"}, []string{"(james t kirk)"}},
 }
 
 var baddata = []struct {
@@ -30,6 +31,7 @@ var baddata = []struct {
 }{
 	{[]string{"(defun average (x y) (/ (+ x y) 2.0))", "(average 6 8 7)"}, []bool{false, true}},
 	{[]string{"(equal kirk spock)"}, []bool{true}},
+	{[]string{"(list kirk 1 2)"}, []bool{false}},
 }
 
 func TestGolispBad(t *testing.T) {
