@@ -23,6 +23,7 @@ var testdata = []struct {
 	{[]string{"pi"}, []string{"3.14159"}},
 	{[]string{"(equal 'kirk 'spock)"}, []string{"nil"}},
 	{[]string{"(list 'james t 'kirk)"}, []string{"(james t kirk)"}},
+	{[]string{"(defun riddle (x y) (list 'why 'is 'a x 'like 'a y))", "(riddle 'raven 'writing-desk)"}, []string{"nil", "(why is a raven like a writing-desk)"}},
 }
 
 var baddata = []struct {
