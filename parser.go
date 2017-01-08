@@ -91,6 +91,7 @@ func (l List) str() string {
 	first := true
 	for node != nil {
 		if first {
+			log.Printf("Trying to print %v", node)
 			rep += node.value.str()
 			first = false
 		} else {

@@ -96,6 +96,23 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			log.Printf("OP = %v", op)
 			i.ops = append(i.ops, op)
 			return Nil{}, nil
+		} else if symbol.value == "list" {
+			list := List{start: &listNode{}}
+			currHead := list.start
+			toadd := l.start.next
+			for toadd != nil {
+				val, err := i.Eval(toadd.value)
+				if err != nil {
+					return nil, err
+				}
+				currHead.value = val
+				if toadd.next != nil {
+					currHead.next = &listNode{}
+				}
+				currHead = currHead.next
+				toadd = toadd.next
+			}
+			return list, nil
 		}
 
 		// If no operator is found, search through local ops
