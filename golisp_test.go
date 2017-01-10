@@ -6,7 +6,6 @@ var testdata = []struct {
 	expression []string
 	result     []string
 }{
-	{[]string{"(1 2 3)"}, []string{"(1 2 3)"}},
 	{[]string{"(+ 2 3)"}, []string{"5"}},
 	{[]string{"(+ 1 6)"}, []string{"7"}},
 	{[]string{"(oddp (+ 1 6))"}, []string{"t"}},
@@ -24,15 +23,20 @@ var testdata = []struct {
 	{[]string{"(equal 'kirk 'spock)"}, []string{"nil"}},
 	{[]string{"(list 'james t 'kirk)"}, []string{"(james t kirk)"}},
 	{[]string{"(defun riddle (x y) (list 'why 'is 'a x 'like 'a y))", "(riddle 'raven 'writing-desk)"}, []string{"nil", "(why is a raven like a writing-desk)"}},
+	{[]string{"(first (list 1 2 3))"}, []string{"1"}},
 }
 
 var baddata = []struct {
 	expression []string
 	fail       []bool
+	message    []string
 }{
-	{[]string{"(defun average (x y) (/ (+ x y) 2.0))", "(average 6 8 7)"}, []bool{false, true}},
-	{[]string{"(equal kirk spock)"}, []bool{true}},
-	{[]string{"(list kirk 1 2)"}, []bool{false}},
+	{[]string{"(1 2 3)"}, []bool{true}, []string{""}},
+	{[]string{"(defun average (x y) (/ (+ x y) 2.0))", "(average 6 8 7)"}, []bool{false, true}, []string{"", ""}},
+	{[]string{"(equal kirk spock)"}, []bool{true}, []string{""}},
+	{[]string{"(list kirk 1 2)"}, []bool{true}, []string{""}},
+	{[]string{"(first (we hold these truths))"}, []bool{true}, []string{"Error! 'we' undefined function"}},
+	{[]string{"(first 1 2 3 4)"}, []bool{true}, []string{""}},
 }
 
 func TestGolispBad(t *testing.T) {
@@ -42,7 +46,12 @@ func TestGolispBad(t *testing.T) {
 			e := Parse(test.expression[j])
 			p, err := i.Eval(e.(Primitive))
 			if test.fail[j] && err == nil {
-				t.Errorf("Executing %v has not failed and it should have done: %v", e.str(), p)
+				t.Errorf("Executing %v has not failed and it should have done: %v -> %v", e.str(), p, p.str())
+			}
+			if err != nil && test.message[j] != "" {
+				if test.message[j] != err.Error() {
+					t.Errorf("Error messages don't match %v vs %v", test.message[j], err.Error())
+				}
 			}
 		}
 	}
