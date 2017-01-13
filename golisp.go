@@ -57,6 +57,13 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 	}
 
 	l := p.(List)
+
+	// Lists that start with strings are fast returned
+	_, found := l.start.value.(String)
+	if found {
+		return l, nil
+	}
+
 	// All evluatable lists start with an symbol
 	symbol, found := l.start.value.(Symbol)
 	if found {
