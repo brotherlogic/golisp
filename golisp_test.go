@@ -25,6 +25,7 @@ var testdata = []struct {
 	{[]string{"(defun riddle (x y) (list 'why 'is 'a x 'like 'a y))", "(riddle 'raven 'writing-desk)"}, []string{"nil", "(why is a raven like a writing-desk)"}},
 	{[]string{"(first (list 1 2 3))"}, []string{"1"}},
 	{[]string{"(first '(we hold these truths))"}, []string{"we"}},
+	{[]string{"'(+ 1 2)"}, []string{"(+ 1 2)"}},
 }
 
 var baddata = []struct {
