@@ -330,18 +330,26 @@ func Parse(str string) Primitive {
 	listReg, _ := regexp.Compile("\\s+")
 
 	// Lists should always start with '('
-	if str[0] != '(' {
+	if str[0] != '(' && !strings.HasPrefix(str, "'(") {
 		return ParseSingle(str)
 	}
 
 	parseString := strings.Replace(strings.Replace(str, "(", "( ", -1), ")", " )", -1)
 	elems := listReg.Split(parseString, -1)
 	log.Printf("ELEMS = %v", elems)
+
 	stack := listStack{}
 	current := &listNode{}
 	stack = stack.Push(current)
+	inQuotes := 0
+	if elems[0] == "'(" {
+		inQuotes++
+	}
 	for _, val := range elems[1 : len(elems)-1] {
-		if val == "(" {
+		if val == "(" || val == "'(" {
+			if val == "'(" {
+				inQuotes++
+			}
 			newln := &listNode{}
 			if current.value != nil {
 				newnd := &listNode{}
@@ -353,15 +361,22 @@ func Parse(str string) Primitive {
 			current = newln
 		} else if val == ")" {
 			stack, current = stack.Pop()
+			inQuotes--
 		} else {
 			if current.value != nil {
 				newnd := &listNode{}
 				current.next = newnd
 				current = newnd
 			}
-			current.value = ParseSingle(val)
+			log.Printf("PARSING: %v", inQuotes)
+			if inQuotes > 0 {
+				current.value = String{value: val}
+			} else {
+				current.value = ParseSingle(val)
+			}
 		}
 	}
+	log.Printf("POPPING FROM %v", stack)
 	stack, sNode := stack.Pop()
 	log.Printf("PARSE RESULT = %v", List{start: sNode}.str())
 	return List{start: sNode}

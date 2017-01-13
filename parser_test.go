@@ -1,6 +1,7 @@
 package golisp
 
 import (
+	"log"
 	"reflect"
 	"testing"
 )
@@ -99,13 +100,24 @@ var parsetestdata = []struct {
 						next: &listNode{value: Symbol{value: "x"},
 							next: &listNode{value: Symbol{value: "y"}}}}},
 						next: &listNode{value: Float{value: 2.0}}}}}}}}}}},
+	{"'( 1 2)", List{start: &listNode{value: String{value: "1"},
+		next: &listNode{value: String{value: "2"}}}}},
 }
 
 func TestParse(t *testing.T) {
 	for _, test := range parsetestdata {
 		result := Parse(test.expression)
 		if !reflect.DeepEqual(test.parsed, result) {
-			t.Errorf("Parse fail %v->%p (should be %p) or otherwise %v !-> %v", test.expression, result, test.parsed, result.str(), test.parsed.str())
+			t.Errorf("Parse fail %v->%p (should be %p but is %p) or otherwise %v !-> %v", test.expression, result, test.parsed, result, result.str(), test.parsed.str())
+			if result.isList() {
+				i := 1
+				tmp := result.(List).start
+				for tmp != nil {
+					log.Printf("%v %v %p", i, tmp.value, tmp.value)
+					tmp = tmp.next
+					i++
+				}
+			}
 		}
 	}
 }
