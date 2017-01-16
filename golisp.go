@@ -74,7 +74,10 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			return Integer{value: first.(Integer).value + second.(Integer).value}, nil
 		} else if symbol.value == "oddp" {
 			first, _ := i.Eval(l.start.next.value)
-			return Truth{value: first.(Integer).value%2 == 1}, nil
+			if first.isInt() {
+				return Truth{value: first.(Integer).value%2 == 1}, nil
+			}
+			return nil, fmt.Errorf("Error! Wrong type input to oddp")
 		} else if symbol.value == "*" {
 			first, _ := i.Eval(l.start.next.value)
 			second, _ := i.Eval(l.start.next.next.value)
