@@ -27,6 +27,7 @@ var testdata = []struct {
 	{[]string{"(first '(we hold these truths))"}, []string{"we"}},
 	{[]string{"'(+ 1 2)"}, []string{"(+ 1 2)"}},
 	{[]string{"(oddp (+ 1 2))"}, []string{"t"}},
+	{[]string{"(list 'a 'b 'c)"}, []string{"(a b c)"}},
 }
 
 var baddata = []struct {
