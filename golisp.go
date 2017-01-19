@@ -132,6 +132,16 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 				toadd = toadd.next
 			}
 			return list, nil
+		} else if symbol.value == "cons" {
+			head, err := i.Eval(l.start.next.value)
+			if err != nil {
+				return nil, err
+			}
+			rest, err := i.Eval(l.start.next.next.value)
+			if err != nil {
+				return nil, err
+			}
+			return List{start: &listNode{value: head, next: rest.(List).start}}, nil
 		}
 
 		// If no operator is found, search through local ops
