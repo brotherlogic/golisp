@@ -29,6 +29,7 @@ var testdata = []struct {
 	{[]string{"(oddp (+ 1 2))"}, []string{"t"}},
 	{[]string{"(list 'a 'b 'c)"}, []string{"(a b c)"}},
 	{[]string{"(cons 'a '(b c))"}, []string{"(a b c)"}},
+	{[]string{"(+ 10 (- 5 2))"}, []string{"13"}},
 }
 
 var baddata = []struct {
@@ -46,6 +47,7 @@ var baddata = []struct {
 	{[]string{"(cons 'a (b c))"}, []bool{false}, []string{"Error! 'b' undefined function"}},
 	{[]string{"(cons a (b c))"}, []bool{false}, []string{""}},
 	{[]string{"(+ 10 '(- 5 2))"}, []bool{false}, []string{"Error! Wrong type input to +"}},
+	{[]string{"(- 10 '(- 5 2))"}, []bool{false}, []string{"Error! Wrong type input to -"}},
 }
 
 func TestGolispBad(t *testing.T) {
