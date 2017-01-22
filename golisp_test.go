@@ -30,6 +30,8 @@ var testdata = []struct {
 	{[]string{"(list 'a 'b 'c)"}, []string{"(a b c)"}},
 	{[]string{"(cons 'a '(b c))"}, []string{"(a b c)"}},
 	{[]string{"(+ 10 (- 5 2))"}, []string{"13"}},
+	{[]string{"(list 'buy '(* 27 34) 'bagels)"}, []string{"(buy (* 27 34) bagels)"}},
+	{[]string{"(list 'buy (* 27 34) 'bagels)"}, []string{"(buy 918 bagels)"}},
 }
 
 var baddata = []struct {
