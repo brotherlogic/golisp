@@ -50,6 +50,7 @@ var baddata = []struct {
 	{[]string{"(cons a (b c))"}, []bool{false}, []string{""}},
 	{[]string{"(+ 10 '(- 5 2))"}, []bool{false}, []string{"Error! Wrong type input to +"}},
 	{[]string{"(- 10 '(- 5 2))"}, []bool{false}, []string{"Error! Wrong type input to -"}},
+	{[]string{"('foo 'bar 'baz)"}, []bool{false}, []string{"Error! 'foo' undefined function"}},
 }
 
 func TestGolispBad(t *testing.T) {
