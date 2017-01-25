@@ -32,6 +32,7 @@ var testdata = []struct {
 	{[]string{"(+ 10 (- 5 2))"}, []string{"13"}},
 	{[]string{"(list 'buy '(* 27 34) 'bagels)"}, []string{"(buy (* 27 34) bagels)"}},
 	{[]string{"(list 'buy (* 27 34) 'bagels)"}, []string{"(buy 918 bagels)"}},
+	{[]string{"'(foo bar baz)"}, []string{"(foo bar baz)"}},
 }
 
 var baddata = []struct {
