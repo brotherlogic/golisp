@@ -36,6 +36,7 @@ var testdata = []struct {
 	{[]string{"(list 'foo 'bar 'baz)"}, []string{"(foo bar baz)"}},
 	{[]string{"(cons 'foo '(bar baz))"}, []string{"(foo bar baz)"}},
 	{[]string{"(list 33 'squared 'is (* 33 33))"}, []string{"(33 squared is 1089)"}},
+	{[]string{"'(33 squared is (* 33 33))"}, []string{"(33 squared is (* 33 33))"}},
 }
 
 var baddata = []struct {
