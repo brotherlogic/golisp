@@ -50,7 +50,7 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 					return v.value, nil
 				}
 			}
-			return nil, fmt.Errorf("Cannot convert %v into symbol", p)
+			return nil, fmt.Errorf("Error! %v unassigned variable", p.str())
 		}
 
 		return p, nil
