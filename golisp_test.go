@@ -37,6 +37,7 @@ var testdata = []struct {
 	{[]string{"(cons 'foo '(bar baz))"}, []string{"(foo bar baz)"}},
 	{[]string{"(list 33 'squared 'is (* 33 33))"}, []string{"(33 squared is 1089)"}},
 	{[]string{"'(33 squared is (* 33 33))"}, []string{"(33 squared is (* 33 33))"}},
+	{[]string{"(defun intro (x y) (list x 'this 'is y))", "(intro 'stanley 'livingstone)"}, []string{"nil", "(stanley this is livingstone)"}},
 }
 
 var baddata = []struct {
