@@ -100,8 +100,11 @@ var parsetestdata = []struct {
 						next: &listNode{value: Symbol{value: "x"},
 							next: &listNode{value: Symbol{value: "y"}}}}},
 						next: &listNode{value: Float{value: 2.0}}}}}}}}}}},
-	{"'( 1 2)", List{start: &listNode{value: String{value: "1"},
-		next: &listNode{value: String{value: "2"}}}}},
+	{"'(1 2)", List{quoted: true, start: &listNode{value: Integer{value: 1},
+		next: &listNode{value: Integer{value: 2}}}}},
+	{"(1 '(2 3))", List{start: &listNode{value: Integer{value: 1},
+		next: &listNode{value: List{quoted: true, start: &listNode{value: Integer{value: 2},
+			next: &listNode{value: Integer{value: 3}}}}}}}},
 }
 
 func TestParse(t *testing.T) {

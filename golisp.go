@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"reflect"
 )
 
 // Interpreter is our lisp interpreter
@@ -58,14 +59,25 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 
 	l := p.(List)
 
-	// Lists that start with strings are fast returned
-	_, found := l.start.value.(String)
-	if found {
+	// Quoted lists are converted and returned
+	if l.quoted {
+		curr := l.start
+		for curr != nil {
+			if curr.value.isList() {
+				clist := curr.value.(List)
+				clist.quoted = true
+				curr.value, _ = i.Eval(clist)
+			} else {
+				curr.value = String{value: curr.value.str()}
+			}
+			curr = curr.next
+		}
 		return l, nil
 	}
 
 	// All evluatable lists start with an symbol
 	symbol, found := l.start.value.(Symbol)
+	log.Printf("SYMBOLD %v and %v -> %v", reflect.TypeOf(l.start.value), symbol, found)
 	if found {
 		log.Printf("SYMBOL %v", symbol.value)
 		if symbol.value == "+" {
@@ -83,7 +95,8 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			}
 			return nil, fmt.Errorf("Error! Wrong type input to -")
 		} else if symbol.value == "oddp" {
-			first, _ := i.Eval(l.start.next.value)
+			first, err := i.Eval(l.start.next.value)
+			log.Printf("ERROR HERE is %v", err)
 			if first.isInt() {
 				return Truth{value: first.(Integer).value%2 == 1}, nil
 			}
@@ -153,10 +166,7 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			}
 			return list, nil
 		} else if symbol.value == "cons" {
-			head, err := i.Eval(l.start.next.value)
-			if err != nil {
-				return nil, err
-			}
+			head, _ := i.Eval(l.start.next.value)
 			rest, err := i.Eval(l.start.next.next.value)
 			if err != nil {
 				return nil, err
