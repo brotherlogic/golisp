@@ -123,6 +123,16 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 				binding: l.start.next.next.value.(List),
 				expr:    l.start.next.next.next.value.(List)}
 			log.Printf("OP = %v", op)
+
+			//Verify the argument list
+			curr := op.binding.start
+			for curr != nil {
+				if !curr.value.isSymbol() {
+					return nil, errors.New("Bad argument list")
+				}
+				curr = curr.next
+			}
+
 			i.ops = append(i.ops, op)
 			return Nil{}, nil
 		} else if symbol.value == "list" {
