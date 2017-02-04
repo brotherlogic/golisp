@@ -24,7 +24,8 @@ type Primitive interface {
 
 // List Basic Type
 type List struct {
-	start *listNode
+	start  *listNode
+	quoted bool
 }
 
 func (l List) isList() bool {
@@ -341,43 +342,34 @@ func Parse(str string) Primitive {
 	stack := listStack{}
 	current := &listNode{}
 	stack = stack.Push(current)
-	inQuotes := 0
-	if elems[0] == "'(" {
-		inQuotes++
-	}
 	for _, val := range elems[1 : len(elems)-1] {
 		if val == "(" || val == "'(" {
-			if val == "'(" {
-				inQuotes++
-			}
 			newln := &listNode{}
 			if current.value != nil {
 				newnd := &listNode{}
 				current.next = newnd
 				current = newnd
 			}
-			current.value = List{start: newln}
+			current.value = List{start: newln, quoted: (val == "'(")}
 			stack = stack.Push(current)
 			current = newln
 		} else if val == ")" {
 			stack, current = stack.Pop()
-			inQuotes--
 		} else {
 			if current.value != nil {
 				newnd := &listNode{}
 				current.next = newnd
 				current = newnd
 			}
-			log.Printf("PARSING: %v", inQuotes)
-			if inQuotes > 0 {
-				current.value = String{value: val}
-			} else {
-				current.value = ParseSingle(val)
-			}
+			current.value = ParseSingle(val)
 		}
 	}
 	log.Printf("POPPING FROM %v", stack)
 	stack, sNode := stack.Pop()
 	log.Printf("PARSE RESULT = %v", List{start: sNode}.str())
-	return List{start: sNode}
+	retVal := List{start: sNode}
+	if str[0] == '\'' {
+		retVal.quoted = true
+	}
+	return retVal
 }

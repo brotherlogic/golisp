@@ -1,6 +1,9 @@
 package golisp
 
-import "testing"
+import (
+	"log"
+	"testing"
+)
 
 var testdata = []struct {
 	expression []string
@@ -51,14 +54,13 @@ var baddata = []struct {
 	{[]string{"(list kirk 1 2)"}, []bool{true}, []string{""}},
 	{[]string{"(first (we hold these truths))"}, []bool{true}, []string{"Error! 'we' undefined function"}},
 	{[]string{"(first 1 2 3 4)"}, []bool{true}, []string{""}},
-	{[]string{"(oddp '(+ 1 2))"}, []bool{false}, []string{"Error! Wrong type input to oddp"}},
-	{[]string{"(cons 'a (b c))"}, []bool{false}, []string{"Error! 'b' undefined function"}},
-	{[]string{"(cons a (b c))"}, []bool{false}, []string{""}},
-	{[]string{"(+ 10 '(- 5 2))"}, []bool{false}, []string{"Error! Wrong type input to +"}},
-	{[]string{"(- 10 '(- 5 2))"}, []bool{false}, []string{"Error! Wrong type input to -"}},
-	{[]string{"('foo 'bar 'baz)"}, []bool{false}, []string{"Error! 'foo' undefined function"}},
-	{[]string{"(list foo bar baz)"}, []bool{false}, []string{"Error! foo unassigned variable"}},
-	{[]string{"(foo bar baz)"}, []bool{false}, []string{"Error! 'foo' undefined function"}},
+	{[]string{"(oddp '(+ 1 2))"}, []bool{true}, []string{"Error! Wrong type input to oddp"}},
+	{[]string{"(cons 'a (b c))"}, []bool{true}, []string{"Error! 'b' undefined function"}},
+	{[]string{"(+ 10 '(- 5 2))"}, []bool{true}, []string{"Error! Wrong type input to +"}},
+	{[]string{"(- 10 '(- 5 2))"}, []bool{true}, []string{"Error! Wrong type input to -"}},
+	{[]string{"('foo 'bar 'baz)"}, []bool{true}, []string{"Error! 'foo' undefined function"}},
+	{[]string{"(list foo bar baz)"}, []bool{true}, []string{"Error! foo unassigned variable"}},
+	{[]string{"(foo bar baz)"}, []bool{true}, []string{"Error! 'foo' undefined function"}},
 	{[]string{"(defun intro ('x 'y) (list x 'this 'is y))"}, []bool{true}, []string{"Bad argument list"}},
 	{[]string{"(defun intro ((x) (y)) (list x 'this 'is y))"}, []bool{true}, []string{"Bad argument list"}},
 }
@@ -66,9 +68,11 @@ var baddata = []struct {
 func TestGolispBad(t *testing.T) {
 	for _, test := range baddata {
 		i := Init()
+		log.Printf("TESTING %v", test.expression[0])
 		for j := range test.expression {
 			e := Parse(test.expression[j])
 			p, err := i.Eval(e.(Primitive))
+			log.Printf("TESTING %v with %v", p, err)
 			if test.fail[j] && err == nil {
 				t.Errorf("Executing %v has not failed and it should have done: %v -> %v", e.str(), p, p.str())
 			}
