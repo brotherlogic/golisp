@@ -194,11 +194,12 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 					val = val.next
 				}
 
-				res, _ := i.Eval(op.expr)
-				return res, nil
+				res, err := i.Eval(op.expr)
+				return res, err
 			}
 		}
 	}
 
+	log.Printf("Bottoming out")
 	return nil, errors.New("Error! '" + l.start.value.str() + "' undefined function")
 }
