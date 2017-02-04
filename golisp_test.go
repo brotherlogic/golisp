@@ -63,18 +63,21 @@ var baddata = []struct {
 	{[]string{"(foo bar baz)"}, []bool{true}, []string{"Error! 'foo' undefined function"}},
 	{[]string{"(defun intro ('x 'y) (list x 'this 'is y))"}, []bool{true}, []string{"Bad argument list"}},
 	{[]string{"(defun intro ((x) (y)) (list x 'this 'is y))"}, []bool{true}, []string{"Bad argument list"}},
+	{[]string{"(defun intro (x y) (list (x) 'this 'is (y)))", "(intro 'stanley 'livingstone)"}, []bool{false, true}, []string{"", "Error! 'x' undefined function"}},
 }
 
 func TestGolispBad(t *testing.T) {
 	for _, test := range baddata {
 		i := Init()
-		log.Printf("TESTING %v", test.expression[0])
 		for j := range test.expression {
+			log.Printf("TESTING %v", test.expression[j])
 			e := Parse(test.expression[j])
 			p, err := i.Eval(e.(Primitive))
 			log.Printf("TESTING %v with %v", p, err)
 			if test.fail[j] && err == nil {
 				t.Errorf("Executing %v has not failed and it should have done: %v -> %v", e.str(), p, p.str())
+			} else if !test.fail[j] && err != nil {
+				t.Errorf("Executing %v has failed and it shouldn't have done: %v -> %v leads to %v", e.str(), p, p, err)
 			}
 			if err != nil && test.message[j] != "" {
 				if test.message[j] != err.Error() {
