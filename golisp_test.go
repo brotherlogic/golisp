@@ -65,6 +65,7 @@ var baddata = []struct {
 	{[]string{"(defun intro ('x 'y) (list x 'this 'is y))"}, []bool{true}, []string{"Bad argument list"}},
 	{[]string{"(defun intro ((x) (y)) (list x 'this 'is y))"}, []bool{true}, []string{"Bad argument list"}},
 	{[]string{"(defun intro (x y) (list (x) 'this 'is (y)))", "(intro 'stanley 'livingstone)"}, []bool{false, true}, []string{"", "Error! 'x' undefined function"}},
+	{[]string{"(defun intro (x y) (list x this is y))", "(intro 'stanley 'livingstone)"}, []bool{false, true}, []string{"", "Error! this unassigned variable"}},
 }
 
 func TestGolispBad(t *testing.T) {
