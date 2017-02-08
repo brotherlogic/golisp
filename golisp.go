@@ -10,7 +10,7 @@ import (
 // Interpreter is our lisp interpreter
 type Interpreter struct {
 	ops  []Operation
-	vars []Variable
+	vars []*Variable
 }
 
 //Variable holds a local variable value
@@ -30,9 +30,9 @@ type Operation struct {
 func Init() *Interpreter {
 	i := &Interpreter{}
 
-	i.vars = append(i.vars, Variable{name: "pi", value: Float{value: 3.14159}})
-	i.vars = append(i.vars, Variable{name: "t", value: Truth{value: true}})
-	i.vars = append(i.vars, Variable{name: "nil", value: Nil{}})
+	i.vars = append(i.vars, &Variable{name: "pi", value: Float{value: 3.14159}})
+	i.vars = append(i.vars, &Variable{name: "t", value: Truth{value: true}})
+	i.vars = append(i.vars, &Variable{name: "nil", value: Nil{}})
 
 	return i
 }
@@ -188,12 +188,26 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 				vr := lvars.start
 				val := op.binding.start
 				for vr != nil {
-					i.vars = append(i.vars, Variable{name: val.value.str(), value: vr.value})
+					eval, _ := i.Eval(vr.value)
+					log.Printf("BINDING %v to %v", eval.str(), val.value.str())
+
+					//Override first, then bind a new variable
+					found := false
+					for _, v := range i.vars {
+						if v.name == val.value.str() {
+							v.value = eval
+							found = true
+						}
+					}
+					if !found {
+						i.vars = append(i.vars, &Variable{name: val.value.str(), value: eval})
+					}
 
 					vr = vr.next
 					val = val.next
 				}
 
+				log.Printf("BOUND %v to eval %v", i.vars, op.expr.str())
 				res, err := i.Eval(op.expr)
 				return res, err
 			}
