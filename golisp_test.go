@@ -42,6 +42,7 @@ var testdata = []struct {
 	{[]string{"'(33 squared is (* 33 33))"}, []string{"(33 squared is (* 33 33))"}},
 	{[]string{"(defun intro (x y) (list x 'this 'is y))", "(intro 'stanley 'livingstone)"}, []string{"nil", "(stanley this is livingstone)"}},
 	{[]string{"(defun intro (x y) (list 'x 'this 'is 'y))", "(intro 'stanley 'livingstone)"}, []string{"nil", "(x this is y)"}},
+	{[]string{"(defun double (n) (* n 2))", "(defun quadruple (n) (double (double n)))", "(quadruple 5)"}, []string{"nil", "nil", "20"}},
 }
 
 var baddata = []struct {
@@ -66,6 +67,7 @@ var baddata = []struct {
 	{[]string{"(defun intro ((x) (y)) (list x 'this 'is y))"}, []bool{true}, []string{"Bad argument list"}},
 	{[]string{"(defun intro (x y) (list (x) 'this 'is (y)))", "(intro 'stanley 'livingstone)"}, []bool{false, true}, []string{"", "Error! 'x' undefined function"}},
 	{[]string{"(defun intro (x y) (list x this is y))", "(intro 'stanley 'livingstone)"}, []bool{false, true}, []string{"", "Error! this unassigned variable"}},
+	{[]string{"(defun double (n) (* n 2))", "n"}, []bool{false, true}, []string{"", "Error! n unassigned variable"}},
 }
 
 func TestGolispBad(t *testing.T) {
