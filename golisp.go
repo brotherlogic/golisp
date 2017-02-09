@@ -140,7 +140,7 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			//Verify the argument list
 			curr := op.binding.start
 			for curr != nil {
-				if !curr.value.isSymbol() {
+				if !curr.value.isSymbol() && !curr.value.isNil() {
 					return nil, errors.New("Bad argument list")
 				}
 				curr = curr.next
@@ -179,9 +179,10 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 		for _, op := range i.ops {
 			if op.name == symbol.value {
 				lvars := List{start: l.start.next}
+				log.Printf("ARG LEN %v (%v) and %v (%v)", lvars.len(), lvars.str(), op.binding.len(), op.binding.str())
 				if lvars.len() != op.binding.len() {
 					log.Printf("Unable to run %v on %v - mismatch in var length", op, l)
-					return nil, errors.New("Badly formed function expression")
+					return nil, errors.New("Error! Too many arguments")
 				}
 
 				//Bind the variables
