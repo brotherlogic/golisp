@@ -20,6 +20,7 @@ type Primitive interface {
 	isInt() bool
 	floatVal() float64
 	isStr() bool
+	isNil() bool
 }
 
 // List Basic Type
@@ -41,6 +42,10 @@ func (l List) isInt() bool {
 }
 
 func (l List) isStr() bool {
+	return false
+}
+
+func (l List) isNil() bool {
 	return false
 }
 
@@ -68,6 +73,11 @@ func (s String) isSymbol() bool {
 func (s String) isInt() bool {
 	return false
 }
+
+func (s String) isNil() bool {
+	return false
+}
+
 func (s String) isStr() bool {
 	return true
 }
@@ -78,9 +88,20 @@ func (s String) floatVal() float64 {
 
 func (l List) len() int {
 	count := 0
+	log.Printf("Running for %v with %v and %v", l, l.str(), l.start)
 	st := l.start
-	for st.next != nil {
+	if st == nil {
+		return 0
+	} else if st.value != nil && !st.value.isNil() {
 		count++
+	}
+
+	log.Printf("NOW %v", st.next)
+	for st.next != nil {
+		log.Printf("VALUE = %v", st.value.str())
+		if !st.value.isNil() {
+			count++
+		}
 		st = st.next
 	}
 	return count
@@ -134,6 +155,10 @@ func (i Integer) isStr() bool {
 	return false
 }
 
+func (i Integer) isNil() bool {
+	return false
+}
+
 func (i Integer) floatVal() float64 {
 	return float64(i.value)
 }
@@ -160,6 +185,10 @@ func (f Float) isSymbol() bool {
 }
 
 func (f Float) isInt() bool {
+	return false
+}
+
+func (f Float) isNil() bool {
 	return false
 }
 
@@ -190,6 +219,10 @@ func (r Ratio) isSymbol() bool {
 }
 
 func (r Ratio) isInt() bool {
+	return false
+}
+
+func (r Ratio) isNil() bool {
 	return false
 }
 
@@ -229,6 +262,10 @@ func (t Truth) isStr() bool {
 	return false
 }
 
+func (t Truth) isNil() bool {
+	return false
+}
+
 func (t Truth) floatVal() float64 {
 	return -1.0
 }
@@ -251,6 +288,10 @@ func (s Symbol) isSymbol() bool {
 }
 
 func (s Symbol) isInt() bool {
+	return false
+}
+
+func (s Symbol) isNil() bool {
 	return false
 }
 
@@ -279,6 +320,10 @@ func (n Nil) isSymbol() bool {
 
 func (n Nil) isInt() bool {
 	return false
+}
+
+func (n Nil) isNil() bool {
+	return true
 }
 
 func (n Nil) isStr() bool {
@@ -340,12 +385,12 @@ func Parse(str string) Primitive {
 	log.Printf("ELEMS = %v", elems)
 
 	stack := listStack{}
-	current := &listNode{}
+	current := &listNode{value: &Nil{}}
 	stack = stack.Push(current)
 	for _, val := range elems[1 : len(elems)-1] {
 		if val == "(" || val == "'(" {
-			newln := &listNode{}
-			if current.value != nil {
+			newln := &listNode{value: &Nil{}}
+			if current.value != nil && !current.value.isNil() {
 				newnd := &listNode{}
 				current.next = newnd
 				current = newnd
@@ -356,7 +401,8 @@ func Parse(str string) Primitive {
 		} else if val == ")" {
 			stack, current = stack.Pop()
 		} else {
-			if current.value != nil {
+			if current.value != nil && !current.value.isNil() {
+				log.Printf("Adding new node for %v", current.value.str())
 				newnd := &listNode{}
 				current.next = newnd
 				current = newnd

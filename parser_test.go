@@ -28,21 +28,22 @@ func TestTruthRep(t *testing.T) {
 }
 
 var testData = []struct {
-	p   Primitive
-	l   bool
-	i   bool
-	s   bool
-	fv  float64
-	str bool
+	p    Primitive
+	l    bool
+	i    bool
+	s    bool
+	fv   float64
+	str  bool
+	nilv bool
 }{
-	{&Truth{}, false, false, false, -1.0, false},
-	{&Symbol{}, false, false, true, -1.0, false},
-	{&Ratio{numerator: 1, denominator: 2}, false, false, false, 0.5, false},
-	{&Nil{}, false, false, false, -1.0, false},
-	{&List{}, true, false, false, -1.0, false},
-	{&String{}, false, false, false, -1.0, true},
-	{&Integer{value: 5}, false, true, false, 5.0, false},
-	{&Float{value: 1.0}, false, false, false, 1.0, false},
+	{&Truth{}, false, false, false, -1.0, false, false},
+	{&Symbol{}, false, false, true, -1.0, false, false},
+	{&Ratio{numerator: 1, denominator: 2}, false, false, false, 0.5, false, false},
+	{&Nil{}, false, false, false, -1.0, false, true},
+	{&List{}, true, false, false, -1.0, false, false},
+	{&String{}, false, false, false, -1.0, true, false},
+	{&Integer{value: 5}, false, true, false, 5.0, false, false},
+	{&Float{value: 1.0}, false, false, false, 1.0, false, false},
 }
 
 func TestListAssert(t *testing.T) {
@@ -61,6 +62,9 @@ func TestListAssert(t *testing.T) {
 		}
 		if test.p.isStr() != test.str {
 			t.Errorf("Error in str assertion %v (%v) for %v", test.s, test.p.isStr(), i)
+		}
+		if test.p.isNil() != test.nilv {
+			t.Errorf("Error in nul assertion %v (%v) for %v", test.s, test.p.isNil(), i)
 		}
 	}
 }
