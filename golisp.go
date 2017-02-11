@@ -26,6 +26,21 @@ type Operation struct {
 	expr    List
 }
 
+func (i *Interpreter) convertToStringList(l List) List {
+	curr := l.start
+	for curr != nil {
+		if curr.value.isList() {
+			clist := curr.value.(List)
+			clist.quoted = true
+			curr.value, _ = i.Eval(clist)
+		} else {
+			curr.value = String{value: curr.value.str()}
+		}
+		curr = curr.next
+	}
+	return l
+}
+
 // Init prepares our interpreter
 func Init() *Interpreter {
 	i := &Interpreter{}
@@ -61,18 +76,7 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 
 	// Quoted lists are converted and returned
 	if l.quoted {
-		curr := l.start
-		for curr != nil {
-			if curr.value.isList() {
-				clist := curr.value.(List)
-				clist.quoted = true
-				curr.value, _ = i.Eval(clist)
-			} else {
-				curr.value = String{value: curr.value.str()}
-			}
-			curr = curr.next
-		}
-		return l, nil
+		return i.convertToStringList(l), nil
 	}
 
 	// All evluatable lists start with an symbol
@@ -172,6 +176,13 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 				return nil, err
 			}
 			return List{start: &listNode{value: head, next: rest.(List).start}}, nil
+		} else if symbol.value == "quote" {
+			head := l.start.next.value
+			if !head.isList() {
+				return String{value: head.str()}, nil
+			}
+			headList := head.(List)
+			return i.convertToStringList(headList), nil
 		}
 
 		// If no operator is found, search through local ops

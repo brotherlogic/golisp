@@ -44,6 +44,8 @@ var testdata = []struct {
 	{[]string{"(defun intro (x y) (list 'x 'this 'is 'y))", "(intro 'stanley 'livingstone)"}, []string{"nil", "(x this is y)"}},
 	{[]string{"(defun double (n) (* n 2))", "(defun quadruple (n) (double (double n)))", "(quadruple 5)"}, []string{"nil", "nil", "20"}},
 	{[]string{"(defun test () (* 85 97))", "(test)"}, []string{"nil", "8245"}},
+	{[]string{"(quote foo)"}, []string{"foo"}},
+	{[]string{"(quote (hello world))"}, []string{"(hello world)"}},
 }
 
 var baddata = []struct {
