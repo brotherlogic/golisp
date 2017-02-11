@@ -46,6 +46,12 @@ var testdata = []struct {
 	{[]string{"(defun test () (* 85 97))", "(test)"}, []string{"nil", "8245"}},
 	{[]string{"(quote foo)"}, []string{"foo"}},
 	{[]string{"(quote (hello world))"}, []string{"(hello world)"}},
+	{[]string{"'foo"}, []string{"foo"}},
+	{[]string{"''foo"}, []string{"(quote foo)"}},
+	{[]string{"(list 'quote 'foo)"}, []string{"(quote foo)"}},
+	{[]string{"(first ''foo)"}, []string{"quote"}},
+	{[]string{"(rest ''foo)"}, []string{"(foo)"}},
+	{[]string{"(length ''foo)"}, []string{"2"}},
 }
 
 var baddata = []struct {
@@ -101,6 +107,7 @@ func TestGolispGood(t *testing.T) {
 	for _, test := range testdata {
 		i := Init()
 		for j := range test.expression {
+			log.Printf("Running test on %v", test.expression[j])
 			e := Parse(test.expression[j])
 			r, err := i.Eval(e.(Primitive))
 			if err != nil {

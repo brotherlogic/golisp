@@ -104,11 +104,27 @@ var parsetestdata = []struct {
 						next: &listNode{value: Symbol{value: "x"},
 							next: &listNode{value: Symbol{value: "y"}}}}},
 						next: &listNode{value: Float{value: 2.0}}}}}}}}}}},
-	{"'(1 2)", List{quoted: true, start: &listNode{value: Integer{value: 1},
-		next: &listNode{value: Integer{value: 2}}}}},
+	{"'(1 2)", List{start: &listNode{value: Symbol{value: "quote"},
+		next: &listNode{value: List{start: &listNode{value: Integer{value: 1},
+			next: &listNode{value: Integer{value: 2}}}}}}}},
 	{"(1 '(2 3))", List{start: &listNode{value: Integer{value: 1},
-		next: &listNode{value: List{quoted: true, start: &listNode{value: Integer{value: 2},
-			next: &listNode{value: Integer{value: 3}}}}}}}},
+		next: &listNode{value: List{start: &listNode{value: Symbol{value: "quote"},
+			next: &listNode{value: List{start: &listNode{value: Integer{value: 2},
+				next: &listNode{value: Integer{value: 3}}}}}}}}}}},
+}
+
+func printList(l List, layer int) {
+	tmp := l.start
+	i := 1
+	for tmp != nil {
+		if tmp.value.isList() {
+			printList(tmp.value.(List), layer+1)
+		} else {
+			log.Printf("%v.%v %v %p", layer, i, tmp.value, tmp.value)
+		}
+		tmp = tmp.next
+		i++
+	}
 }
 
 func TestParse(t *testing.T) {
@@ -116,15 +132,30 @@ func TestParse(t *testing.T) {
 		result := Parse(test.expression)
 		if !reflect.DeepEqual(test.parsed, result) {
 			t.Errorf("Parse fail %v->%p (should be %p but is %p) or otherwise %v !-> %v", test.expression, result, test.parsed, result, result.str(), test.parsed.str())
+			log.Printf("Printing Result")
 			if result.isList() {
-				i := 1
-				tmp := result.(List).start
-				for tmp != nil {
-					log.Printf("%v %v %p", i, tmp.value, tmp.value)
-					tmp = tmp.next
-					i++
-				}
+				printList(result.(List), 1)
+				printList(test.parsed.(List), 1)
 			}
+		}
+	}
+}
+
+var quoteTestData = []struct {
+	quoted   string
+	dequoted string
+}{
+	{"'foo", "( quote foo )"},
+	{"''foo", "( quote ( quote foo ) )"},
+	{"'(blah blah)", "( quote (blah blah) )"},
+	{"'(blah blah (blah blah))", "( quote (blah blah (blah blah)) )"},
+}
+
+func TestQuote(t *testing.T) {
+	for _, test := range quoteTestData {
+		result := DeQuote(test.quoted)
+		if result != test.dequoted {
+			t.Errorf("DeQuote Fail %v -> %v (should be %v)", test.quoted, result, test.dequoted)
 		}
 	}
 }
