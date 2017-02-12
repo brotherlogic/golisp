@@ -31,14 +31,27 @@ func (i *Interpreter) convertToStringList(l List) List {
 	for curr != nil {
 		if curr.value.isList() {
 			clist := curr.value.(List)
-			clist.quoted = true
-			curr.value, _ = i.Eval(clist)
+			curr.value = i.convertToStringList(clist)
 		} else {
 			curr.value = String{value: curr.value.str()}
 		}
 		curr = curr.next
 	}
 	return l
+}
+
+func length(l List) Integer {
+	curr := l.start
+	len := 0
+	for curr != nil {
+		/*if curr.value.isList() {
+			len += length(curr.value.(List)).value
+		} else { */
+		len++
+		curr = curr.next
+	}
+
+	return Integer{value: len}
 }
 
 // Init prepares our interpreter
@@ -60,6 +73,9 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 		if p.isSymbol() {
 			s := p.(Symbol)
 			log.Printf("Searching for variable for %v", s)
+
+			// Deal with quoted symbols
+
 			for _, v := range i.vars {
 				if v.name == s.value {
 					log.Printf("RETURNING %v", v.value)
@@ -73,11 +89,6 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 	}
 
 	l := p.(List)
-
-	// Quoted lists are converted and returned
-	if l.quoted {
-		return i.convertToStringList(l), nil
-	}
 
 	// All evluatable lists start with an symbol
 	symbol, found := l.start.value.(Symbol)
@@ -183,6 +194,14 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			}
 			headList := head.(List)
 			return i.convertToStringList(headList), nil
+		} else if symbol.value == "rest" {
+			log.Printf("REST: %v", l.start.next.value.str())
+			procList, _ := i.Eval(l.start.next.value)
+			nlist := List{start: procList.(List).start.next}
+			return nlist, nil
+		} else if symbol.value == "length" {
+			procList, _ := i.Eval(l.start.next.value)
+			return length(procList.(List)), nil
 		}
 
 		// If no operator is found, search through local ops
@@ -204,7 +223,7 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 					log.Printf("BINDING %v to %v", eval.str(), val.value.str())
 
 					//Override first, then bind a new variable
-					found := false
+					found = false
 					for _, v := range i.vars {
 						if v.name == val.value.str() {
 							v.value = eval
@@ -224,6 +243,12 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 				return res, err
 			}
 		}
+	}
+
+	listv, found := l.start.value.(List)
+	if found {
+		l.start.value, _ = i.Eval(listv)
+		return i.Eval(l)
 	}
 
 	log.Printf("Bottoming out")

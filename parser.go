@@ -25,8 +25,7 @@ type Primitive interface {
 
 // List Basic Type
 type List struct {
-	start  *listNode
-	quoted bool
+	start *listNode
 }
 
 func (l List) isList() bool {
@@ -334,6 +333,37 @@ func (n Nil) floatVal() float64 {
 	return -1.0
 }
 
+// DeQuote converts quotes into explicit quote functions
+func DeQuote(str string) string {
+	firstQuote := strings.Index(str, "'")
+
+	for firstQuote >= 0 {
+		log.Printf("DEQUOTING %v from index %v", str, firstQuote)
+		nextIndex := firstQuote + 1
+		if str[nextIndex] == '(' {
+			bracketCount := 1
+			for bracketCount > 0 {
+				nextIndex++
+				if str[nextIndex] == ')' {
+					bracketCount--
+				} else if str[nextIndex] == '(' {
+					bracketCount++
+				}
+			}
+			str = str[0:firstQuote] + "( quote " + str[firstQuote+1:nextIndex+1] + " )" + str[nextIndex+1:]
+		} else {
+			for nextIndex < len(str) && str[nextIndex] != ' ' {
+				nextIndex++
+			}
+			str = str[0:firstQuote] + "( quote " + str[firstQuote+1:nextIndex] + " )" + str[nextIndex:]
+		}
+
+		firstQuote = strings.Index(str, "'")
+	}
+
+	return str
+}
+
 // ParseSingle Parses out a primitive
 func ParseSingle(str string) Primitive {
 	match, _ := regexp.MatchString("^[0-9]+$", str)
@@ -347,12 +377,6 @@ func ParseSingle(str string) Primitive {
 	if match {
 		val, _ := strconv.ParseFloat(str, 64)
 		return Float{value: val}
-	}
-
-	//Check for strings
-	match, _ = regexp.MatchString("^'\\w+", str)
-	if match {
-		return String{value: str[1:len(str)]}
 	}
 
 	//Otherwise, assume operator
@@ -371,16 +395,20 @@ func (s listStack) Pop() (listStack, *listNode) {
 }
 
 //Parse parses a string to a primitive
-func Parse(str string) Primitive {
-	log.Printf("PARSING %v", str)
+func Parse(strin string) Primitive {
+	log.Printf("PARSING %v", strin)
 	listReg, _ := regexp.Compile("\\s+")
+
+	//Dequote first
+	str := DeQuote(strin)
 
 	// Lists should always start with '('
 	if str[0] != '(' && !strings.HasPrefix(str, "'(") {
 		return ParseSingle(str)
 	}
 
-	parseString := strings.Replace(strings.Replace(str, "(", "( ", -1), ")", " )", -1)
+	parseString := strings.Replace(strings.Replace(DeQuote(str), "(", "( ", -1), ")", " )", -1)
+	log.Printf("PARSE STRING %v", parseString)
 	elems := listReg.Split(parseString, -1)
 	log.Printf("ELEMS = %v", elems)
 
@@ -395,7 +423,7 @@ func Parse(str string) Primitive {
 				current.next = newnd
 				current = newnd
 			}
-			current.value = List{start: newln, quoted: (val == "'(")}
+			current.value = List{start: newln}
 			stack = stack.Push(current)
 			current = newln
 		} else if val == ")" {
@@ -414,8 +442,6 @@ func Parse(str string) Primitive {
 	stack, sNode := stack.Pop()
 	log.Printf("PARSE RESULT = %v", List{start: sNode}.str())
 	retVal := List{start: sNode}
-	if str[0] == '\'' {
-		retVal.quoted = true
-	}
+
 	return retVal
 }
