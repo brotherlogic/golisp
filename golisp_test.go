@@ -54,6 +54,9 @@ var testdata = []struct {
 	{[]string{"(length ''foo)"}, []string{"2"}},
 	{[]string{"'(+ 2 2)"}, []string{"(+ 2 2)"}},
 	{[]string{"(eval '(+ 2 2))"}, []string{"4"}},
+	{[]string{"'''boing"}, []string{"(quote (quote boing))"}},
+	{[]string{"(eval '''boing)"}, []string{"(quote boing)"}},
+	{[]string{"(eval (eval '''boing))"}, []string{"boing"}},
 }
 
 var baddata = []struct {
@@ -81,6 +84,7 @@ var baddata = []struct {
 	{[]string{"(defun double (n) (* n 2))", "n"}, []bool{false, true}, []string{"", "Error! n unassigned variable"}},
 	{[]string{"(defun test () (* 85 97))", "(test 1)"}, []bool{false, true}, []string{"", "Error! Too many arguments"}},
 	{[]string{"(defun test () (* 85 97))", "test"}, []bool{false, true}, []string{"", "Error! test unassigned variable"}},
+	{[]string{"(eval (eval (eval '''boing)))"}, []bool{true}, []string{"Error! boing unassigned variable"}},
 }
 
 func TestGolispBad(t *testing.T) {
