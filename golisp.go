@@ -131,7 +131,7 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			if first.isInt() && second.isInt() {
 				return Truth{value: first.(Integer).value == second.(Integer).value}, nil
 			}
-			return Truth{value: first.(String).value == second.(String).value}, nil
+			return Truth{value: first.str() == second.str()}, nil
 		} else if symbol.value == "defun" {
 			op := Operation{name: l.start.next.value.str(),
 				binding: l.start.next.next.value.(List),
@@ -175,9 +175,6 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			return List{start: &listNode{value: head, next: rest.(List).start}}, nil
 		} else if symbol.value == "quote" {
 			head := l.start.next.value
-			if !head.isList() {
-				return String{value: head.str()}, nil
-			}
 			log.Printf("QUOTE RETURN: %v", head.str())
 			return head, nil
 		} else if symbol.value == "rest" {

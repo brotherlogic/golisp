@@ -6,6 +6,13 @@ import (
 	"testing"
 )
 
+func TestStringRep(t *testing.T) {
+	s := &String{value: "blah"}
+	if s.str() != "blah" {
+		t.Errorf("String str method fails: %v from %v", s.str(), s)
+	}
+}
+
 func TestIntegerRep(t *testing.T) {
 	v := &Integer{value: 5}
 	if v.str() != "5" {
