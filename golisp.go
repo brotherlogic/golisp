@@ -26,20 +26,6 @@ type Operation struct {
 	expr    List
 }
 
-func (i *Interpreter) convertToStringList(l List) List {
-	curr := l.start
-	for curr != nil {
-		if curr.value.isList() {
-			clist := curr.value.(List)
-			curr.value = i.convertToStringList(clist)
-		} else {
-			curr.value = String{value: curr.value.str()}
-		}
-		curr = curr.next
-	}
-	return l
-}
-
 func length(l List) Integer {
 	curr := l.start
 	len := 0
@@ -133,8 +119,8 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 				return nil, err
 			}
 			if first.isList() {
-				v, err := i.Eval(first.(List).start.value)
-				return v, err
+				v := first.(List).start.value
+				return v, nil
 			}
 		} else if symbol.value == "equal" {
 			first, errf := i.Eval(l.start.next.value)
@@ -192,8 +178,8 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			if !head.isList() {
 				return String{value: head.str()}, nil
 			}
-			headList := head.(List)
-			return i.convertToStringList(headList), nil
+			log.Printf("QUOTE RETURN: %v", head.str())
+			return head, nil
 		} else if symbol.value == "rest" {
 			log.Printf("REST: %v", l.start.next.value.str())
 			procList, _ := i.Eval(l.start.next.value)
@@ -202,6 +188,10 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 		} else if symbol.value == "length" {
 			procList, _ := i.Eval(l.start.next.value)
 			return length(procList.(List)), nil
+		} else if symbol.value == "eval" {
+			temp, _ := i.Eval(l.start.next.value)
+			evalRes, err := i.Eval(temp)
+			return evalRes, err
 		}
 
 		// If no operator is found, search through local ops

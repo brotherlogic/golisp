@@ -52,6 +52,8 @@ var testdata = []struct {
 	{[]string{"(first ''foo)"}, []string{"quote"}},
 	{[]string{"(rest ''foo)"}, []string{"(foo)"}},
 	{[]string{"(length ''foo)"}, []string{"2"}},
+	{[]string{"'(+ 2 2)"}, []string{"(+ 2 2)"}},
+	{[]string{"(eval '(+ 2 2))"}, []string{"4"}},
 }
 
 var baddata = []struct {
@@ -111,9 +113,9 @@ func TestGolispGood(t *testing.T) {
 			e := Parse(test.expression[j])
 			r, err := i.Eval(e.(Primitive))
 			if err != nil {
-				t.Errorf("Executing %v has failed for %v", e.str(), err)
+				t.Fatalf("Executing %v has failed for %v", e.str(), err)
 			} else if r.str() != test.result[j] {
-				t.Errorf("%v did not lead to %v, it lead to %v", test.expression[j], test.result[j], r.str())
+				t.Fatalf("%v did not lead to %v, it lead to %v", test.expression[j], test.result[j], r.str())
 			}
 		}
 	}
