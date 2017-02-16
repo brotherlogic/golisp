@@ -57,6 +57,9 @@ var testdata = []struct {
 	{[]string{"'''boing"}, []string{"(quote (quote boing))"}},
 	{[]string{"(eval '''boing)"}, []string{"(quote boing)"}},
 	{[]string{"(eval (eval '''boing))"}, []string{"boing"}},
+	{[]string{"'(list '* 9 6)"}, []string{"(list (quote *) 9 6)"}},
+	{[]string{"(eval '(list '* 9 6))"}, []string{"(* 9 6)"}},
+	{[]string{"(eval (eval '(list '* 9 6)))"}, []string{"54"}},
 }
 
 var baddata = []struct {
