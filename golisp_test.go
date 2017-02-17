@@ -60,6 +60,8 @@ var testdata = []struct {
 	{[]string{"'(list '* 9 6)"}, []string{"(list (quote *) 9 6)"}},
 	{[]string{"(eval '(list '* 9 6))"}, []string{"(* 9 6)"}},
 	{[]string{"(eval (eval '(list '* 9 6)))"}, []string{"54"}},
+	{[]string{"(apply #'+ '(2 3))"}, []string{"5"}},
+	{[]string{"(apply #'equal '(12 17))"}, []string{"nil"}},
 }
 
 var baddata = []struct {

@@ -334,7 +334,8 @@ func (n Nil) floatVal() float64 {
 }
 
 // DeQuote converts quotes into explicit quote functions
-func DeQuote(str string) string {
+func DeQuote(s string) string {
+	str := strings.Replace(s, "#'", "'", -1)
 	firstQuote := strings.Index(str, "'")
 
 	for firstQuote >= 0 {

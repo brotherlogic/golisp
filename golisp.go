@@ -189,6 +189,12 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			temp, _ := i.Eval(l.start.next.value)
 			evalRes, err := i.Eval(temp)
 			return evalRes, err
+		} else if symbol.value == "apply" {
+			f, _ := i.Eval(l.start.next.value)
+			li, _ := i.Eval(l.start.next.next.value)
+			ln := li.(List).start
+			applyList := List{start: &listNode{value: f, next: ln}}
+			return i.Eval(applyList)
 		}
 
 		// If no operator is found, search through local ops
