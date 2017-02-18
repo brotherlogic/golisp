@@ -40,6 +40,27 @@ func length(l List) Integer {
 	return Integer{value: len}
 }
 
+func (i *Interpreter) buildList(l *listNode) (*List, error) {
+	head, err := i.Eval(l.value)
+	if err != nil {
+		return nil, err
+	}
+	headNode := &listNode{value: head}
+	currNode := headNode
+	currProc := l.next
+	for currProc != nil {
+		currNode.next = &listNode{}
+		currNode = currNode.next
+		val, err := i.Eval(currProc.value)
+		if err != nil {
+			return nil, err
+		}
+		currNode.value = val
+		currProc = currProc.next
+	}
+	return &List{start: headNode}, nil
+}
+
 // Init prepares our interpreter
 func Init() *Interpreter {
 	i := &Interpreter{}
@@ -81,14 +102,7 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 	log.Printf("SYMBOLD %v and %v -> %v", reflect.TypeOf(l.start.value), symbol, found)
 	if found {
 		log.Printf("SYMBOL %v", symbol.value)
-		if symbol.value == "+" {
-			first, _ := i.Eval(l.start.next.value)
-			second, _ := i.Eval(l.start.next.next.value)
-			if first.isInt() && second.isInt() {
-				return Integer{value: first.(Integer).value + second.(Integer).value}, nil
-			}
-			return nil, fmt.Errorf("Error! Wrong type input to +")
-		} else if symbol.value == "-" {
+		if symbol.value == "-" {
 			first, _ := i.Eval(l.start.next.value)
 			second, _ := i.Eval(l.start.next.next.value)
 			if first.isInt() && second.isInt() {
@@ -122,16 +136,6 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 				v := first.(List).start.value
 				return v, nil
 			}
-		} else if symbol.value == "equal" {
-			first, errf := i.Eval(l.start.next.value)
-			second, errs := i.Eval(l.start.next.next.value)
-			if errf != nil || errs != nil {
-				return nil, fmt.Errorf("Error in eval %v or %v", errf, errs)
-			}
-			if first.isInt() && second.isInt() {
-				return Truth{value: first.(Integer).value == second.(Integer).value}, nil
-			}
-			return Truth{value: first.str() == second.str()}, nil
 		} else if symbol.value == "defun" {
 			op := Operation{name: l.start.next.value.str(),
 				binding: l.start.next.next.value.(List),
@@ -166,13 +170,6 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 				toadd = toadd.next
 			}
 			return list, nil
-		} else if symbol.value == "cons" {
-			head, _ := i.Eval(l.start.next.value)
-			rest, err := i.Eval(l.start.next.next.value)
-			if err != nil {
-				return nil, err
-			}
-			return List{start: &listNode{value: head, next: rest.(List).start}}, nil
 		} else if symbol.value == "quote" {
 			head := l.start.next.value
 			log.Printf("QUOTE RETURN: %v", head.str())
@@ -190,11 +187,26 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			evalRes, err := i.Eval(temp)
 			return evalRes, err
 		} else if symbol.value == "apply" {
-			f, _ := i.Eval(l.start.next.value)
+			fname, _ := i.Eval(l.start.next.value)
 			li, _ := i.Eval(l.start.next.next.value)
-			ln := li.(List).start
-			applyList := List{start: &listNode{value: f, next: ln}}
-			return i.Eval(applyList)
+			ln := li.(List)
+
+			log.Printf("RUNNING apply: %v and %v", fname, ln)
+			if f, ok := funcs[fname.str()]; ok {
+				log.Printf("Applying function %v", fname.str())
+				return f(&ln)
+			}
+		}
+
+		// Search through the function table
+		log.Printf("Searching the function table")
+		if f, ok := funcs[symbol.value]; ok {
+			log.Printf("Applying function %v", symbol.value)
+			flist, err := i.buildList(l.start.next)
+			if err != nil {
+				return nil, err
+			}
+			return f(flist)
 		}
 
 		// If no operator is found, search through local ops
