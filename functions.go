@@ -10,6 +10,7 @@ var (
 		"cons":  cons,
 		"+":     plus,
 		"equal": equal,
+		"if":    iff,
 	}
 )
 
@@ -36,4 +37,11 @@ func equal(params *List) (Primitive, error) {
 		return Truth{value: first.(Integer).value == second.(Integer).value}, nil
 	}
 	return Truth{value: first.str() == second.str()}, nil
+}
+
+func iff(params *List) (Primitive, error) {
+	if params.start.value.(Truth).value {
+		return params.start.next.value, nil
+	}
+	return params.start.next.next.value, nil
 }

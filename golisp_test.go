@@ -63,6 +63,8 @@ var testdata = []struct {
 	{[]string{"(apply #'+ '(2 3))"}, []string{"5"}},
 	{[]string{"(apply #'equal '(12 17))"}, []string{"nil"}},
 	{[]string{"(apply #'cons '(as (you like it)))"}, []string{"(as you like it)"}},
+	{[]string{"(if (oddp 1) 'odd 'even)"}, []string{"odd"}},
+	{[]string{"(if (oddp 2) 'odd 'even)"}, []string{"even"}},
 }
 
 var baddata = []struct {
