@@ -65,6 +65,7 @@ var testdata = []struct {
 	{[]string{"(apply #'cons '(as (you like it)))"}, []string{"(as you like it)"}},
 	{[]string{"(if (oddp 1) 'odd 'even)"}, []string{"odd"}},
 	{[]string{"(if (oddp 2) 'odd 'even)"}, []string{"even"}},
+	{[]string{"(if t 'test-was-true 'test-was-false)"}, []string{"test-was-true"}},
 }
 
 var baddata = []struct {
