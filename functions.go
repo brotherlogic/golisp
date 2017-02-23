@@ -40,7 +40,7 @@ func equal(params *List) (Primitive, error) {
 }
 
 func iff(params *List) (Primitive, error) {
-	if params.start.value.(Truth).value {
+	if !params.start.value.isNil() && params.start.value.(Truth).value {
 		return params.start.next.value, nil
 	}
 	return params.start.next.next.value, nil
