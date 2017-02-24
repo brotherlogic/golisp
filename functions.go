@@ -7,12 +7,18 @@ import (
 
 var (
 	funcs = map[string]func(*List) (Primitive, error){
-		"cons":  cons,
-		"+":     plus,
-		"equal": equal,
-		"if":    iff,
+		"cons":    cons,
+		"+":       plus,
+		"equal":   equal,
+		"if":      iff,
+		"symbolp": symbolp,
 	}
 )
+
+func symbolp(params *List) (Primitive, error) {
+	head := params.start.value
+	return Truth{value: head.isSymbol()}, nil
+}
 
 func cons(params *List) (Primitive, error) {
 	head := params.start.value
