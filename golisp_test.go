@@ -67,6 +67,8 @@ var testdata = []struct {
 	{[]string{"(if (oddp 2) 'odd 'even)"}, []string{"even"}},
 	{[]string{"(if t 'test-was-true 'test-was-false)"}, []string{"test-was-true"}},
 	{[]string{"(if nil 'test-was-true 'test-was-false)"}, []string{"test-was-false"}},
+	{[]string{"(if (symbolp 'foo) (* 5 5) (+ 5 5))"}, []string{"25"}},
+	{[]string{"(if (symbolp 1) (* 5 5) (+ 5 5))"}, []string{"10"}},
 }
 
 var baddata = []struct {
