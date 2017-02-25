@@ -70,6 +70,7 @@ var testdata = []struct {
 	{[]string{"(if (symbolp 'foo) (* 5 5) (+ 5 5))"}, []string{"25"}},
 	{[]string{"(if (symbolp 1) (* 5 5) (+ 5 5))"}, []string{"10"}},
 	{[]string{"(defun my-abs (x) (if (< x 0) (- x) x))", "(my-abs -5)", "(my-abs 5)"}, []string{"nil", "5", "5"}},
+	{[]string{"(defun symbol-test (x) (if (symbolp x) (list 'yes x 'is 'a 'symbol) (list 'no x 'is 'not 'a 'symbol)))", "(symbol-test 'rutabaga)", "(symbol-test 12345)"}, []string{"nil", "(yes rutabaga is a symbol)", "(no 12345 is not a symbol)"}},
 }
 
 var baddata = []struct {
