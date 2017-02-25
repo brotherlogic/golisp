@@ -367,7 +367,7 @@ func DeQuote(s string) string {
 
 // ParseSingle Parses out a primitive
 func ParseSingle(str string) Primitive {
-	match, _ := regexp.MatchString("^[0-9]+$", str)
+	match, _ := regexp.MatchString("^-?[0-9]+$", str)
 	if match {
 		val, _ := strconv.Atoi(str)
 		return Integer{value: val}

@@ -41,6 +41,7 @@ func length(l List) Integer {
 }
 
 func (i *Interpreter) buildList(l *listNode) (*List, error) {
+	log.Printf("BUILDING LIST: %v", List{start: l}.str())
 	head, err := i.Eval(l.value)
 	if err != nil {
 		return nil, err
@@ -102,14 +103,7 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 	log.Printf("SYMBOLD %v and %v -> %v", reflect.TypeOf(l.start.value), symbol, found)
 	if found {
 		log.Printf("SYMBOL %v", symbol.value)
-		if symbol.value == "-" {
-			first, _ := i.Eval(l.start.next.value)
-			second, _ := i.Eval(l.start.next.next.value)
-			if first.isInt() && second.isInt() {
-				return Integer{value: first.(Integer).value - second.(Integer).value}, nil
-			}
-			return nil, fmt.Errorf("Error! Wrong type input to -")
-		} else if symbol.value == "oddp" {
+		if symbol.value == "oddp" {
 			first, err := i.Eval(l.start.next.value)
 			log.Printf("ERROR HERE is %v", err)
 			if first.isInt() {
