@@ -40,9 +40,9 @@ func length(l List) Integer {
 	return Integer{value: len}
 }
 
-func (i *Interpreter) buildList(l *listNode) (*List, error) {
+func (i *Interpreter) buildList(l *listNode, vs []Variable) (*List, error) {
 	log.Printf("BUILDING LIST: %v", List{start: l}.str())
-	head, err := i.Eval(l.value)
+	head, err := i.Eval(l.value, vs)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (i *Interpreter) buildList(l *listNode) (*List, error) {
 	for currProc != nil {
 		currNode.next = &listNode{}
 		currNode = currNode.next
-		val, err := i.Eval(currProc.value)
+		val, err := i.Eval(currProc.value, vs)
 		if err != nil {
 			return nil, err
 		}
@@ -74,15 +74,21 @@ func Init() *Interpreter {
 }
 
 // Eval evaluates lisp expressions
-func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
+func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 	log.Printf("EVAL: %v with %v", p.str(), i)
 
 	if !p.isList() {
 		if p.isSymbol() {
 			s := p.(Symbol)
-			log.Printf("Searching for variable for %v", s)
+			log.Printf("Searching for variable for %v with %v", s, vs)
 
-			// Deal with quoted symbols
+			// Process stack variables first
+			for _, v := range vs {
+				if v.name == s.value {
+					log.Printf("RETURNING %v", v.value)
+					return v.value, nil
+				}
+			}
 
 			for _, v := range i.vars {
 				if v.name == s.value {
@@ -104,25 +110,26 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 	if found {
 		log.Printf("SYMBOL %v", symbol.value)
 		if symbol.value == "oddp" {
-			first, err := i.Eval(l.start.next.value)
+			first, err := i.Eval(l.start.next.value, vs)
 			log.Printf("ERROR HERE is %v", err)
 			if first.isInt() {
 				return Truth{value: first.(Integer).value%2 == 1}, nil
 			}
 			return nil, fmt.Errorf("Error! Wrong type input to oddp")
 		} else if symbol.value == "*" {
-			first, _ := i.Eval(l.start.next.value)
-			second, _ := i.Eval(l.start.next.next.value)
+			first, _ := i.Eval(l.start.next.value, vs)
+			second, _ := i.Eval(l.start.next.next.value, vs)
 			return Integer{value: first.(Integer).value * second.(Integer).value}, nil
 		} else if symbol.value == "/" {
-			first, _ := i.Eval(l.start.next.value)
-			second, _ := i.Eval(l.start.next.next.value)
+			first, err1 := i.Eval(l.start.next.value, vs)
+			second, err2 := i.Eval(l.start.next.next.value, vs)
+			log.Printf("DIVIDE: %v and %v", err1, err2)
 			if first.isInt() && second.isInt() {
 				return Ratio{numerator: first.(Integer).value, denominator: second.(Integer).value}, nil
 			}
 			return Float{value: first.floatVal() / second.floatVal()}, nil
 		} else if symbol.value == "first" {
-			first, err := i.Eval(l.start.next.value)
+			first, err := i.Eval(l.start.next.value, vs)
 			if err != nil {
 				return nil, err
 			}
@@ -153,7 +160,7 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			currHead := list.start
 			toadd := l.start.next
 			for toadd != nil {
-				val, err := i.Eval(toadd.value)
+				val, err := i.Eval(toadd.value, vs)
 				if err != nil {
 					return nil, err
 				}
@@ -171,19 +178,19 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			return head, nil
 		} else if symbol.value == "rest" {
 			log.Printf("REST: %v", l.start.next.value.str())
-			procList, _ := i.Eval(l.start.next.value)
+			procList, _ := i.Eval(l.start.next.value, vs)
 			nlist := List{start: procList.(List).start.next}
 			return nlist, nil
 		} else if symbol.value == "length" {
-			procList, _ := i.Eval(l.start.next.value)
+			procList, _ := i.Eval(l.start.next.value, vs)
 			return length(procList.(List)), nil
 		} else if symbol.value == "eval" {
-			temp, _ := i.Eval(l.start.next.value)
-			evalRes, err := i.Eval(temp)
+			temp, _ := i.Eval(l.start.next.value, vs)
+			evalRes, err := i.Eval(temp, vs)
 			return evalRes, err
 		} else if symbol.value == "apply" {
-			fname, _ := i.Eval(l.start.next.value)
-			li, _ := i.Eval(l.start.next.next.value)
+			fname, _ := i.Eval(l.start.next.value, vs)
+			li, _ := i.Eval(l.start.next.next.value, vs)
 			ln := li.(List)
 
 			log.Printf("RUNNING apply: %v and %v", fname, ln)
@@ -195,10 +202,10 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			evalList := List{start: l.start.next}
 			curr := evalList.start
 			for curr != nil {
-				t, _ := i.Eval(curr.value.(List).start.value)
+				t, _ := i.Eval(curr.value.(List).start.value, vs)
 				log.Printf("EVALd %v -> %v", curr.value.(List).start.value.str(), t)
 				if t != nil && t.(Truth).value {
-					r, _ := i.Eval(curr.value.(List).start.next.value)
+					r, _ := i.Eval(curr.value.(List).start.next.value, vs)
 					return r, nil
 				}
 				curr = curr.next
@@ -210,7 +217,7 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 		log.Printf("Searching the function table")
 		if f, ok := funcs[symbol.value]; ok {
 			log.Printf("Applying function %v", symbol.value)
-			flist, err := i.buildList(l.start.next)
+			flist, err := i.buildList(l.start.next, vs)
 			if err != nil {
 				return nil, err
 			}
@@ -233,27 +240,29 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 				vr := lvars.start
 				val := op.binding.start
 				for vr != nil {
-					eval, _ := i.Eval(vr.value)
+					eval, _ := i.Eval(vr.value, vs)
 					log.Printf("BINDING %v to %v", eval.str(), val.value.str())
 
 					//Override first, then bind a new variable
 					found = false
-					for _, v := range i.vars {
+					for i, v := range vs {
 						if v.name == val.value.str() {
-							v.value = eval
+							log.Printf("BEFORE %v %v", vs, v)
+							vs[i].value = eval
+							log.Printf("AFTER %v %v", vs, v)
 							found = true
 						}
 					}
 					if !found {
-						i.vars = append(i.vars, &Variable{name: val.value.str(), value: eval})
+						vs = append(vs, Variable{name: val.value.str(), value: eval})
 					}
 
 					vr = vr.next
 					val = val.next
 				}
 
-				log.Printf("BOUND %v to eval %v", i.vars, op.expr.str())
-				res, err := i.Eval(op.expr)
+				log.Printf("BOUND %v to eval %v", vs, op.expr.str())
+				res, err := i.Eval(op.expr, vs)
 				return res, err
 			}
 		}
@@ -261,8 +270,8 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 
 	listv, found := l.start.value.(List)
 	if found {
-		l.start.value, _ = i.Eval(listv)
-		return i.Eval(l)
+		l.start.value, _ = i.Eval(listv, vs)
+		return i.Eval(l, vs)
 	}
 
 	log.Printf("Bottoming out")
