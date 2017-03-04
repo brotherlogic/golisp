@@ -76,6 +76,7 @@ var testdata = []struct {
 	{[]string{"(defun compare (x y) (cond ((equal x y) 'numbers-are-the-same) ((< x y) 'first-is-smaller) ((> x y) 'first-is-bigger)))", "(compare 3 5)", "(compare 7 2)", "(compare 4 4)"}, []string{"nil", "first-is-smaller", "first-is-bigger", "numbers-are-the-same"}},
 	{[]string{"(defun compare (x y) (cond ((< x y) 'first-is-smaller) ((> x y) 'first-is-bigger)))", "(compare 5 5)"}, []string{"nil", "nil"}},
 	{[]string{"(defun where-is (x) (cond ((equal x 'paris) 'france) ((equal x 'london) 'england) ((equal x 'beijing) 'china) (t 'unknown)))", "(where-is 'london)", "(where-is 'beijing)", "(where-is 'hackensack)"}, []string{"nil", "england", "china", "unknown"}},
+	{[]string{"(defun emphasize (x) (cond ((equal (first x) 'good) (cons 'great (rest x))) ((equal (first x) 'bad) (cons 'awful (rest x)))))", "(emphasize '(good mystery story))", "(emphasize '(mediocre mystery story))"}, []string{"nil", "(great mystery story)", "nil"}},
 }
 
 var baddata = []struct {
