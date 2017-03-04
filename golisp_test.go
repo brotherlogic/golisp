@@ -79,6 +79,7 @@ var testdata = []struct {
 	{[]string{"(defun emphasize (x) (cond ((equal (first x) 'good) (cons 'great (rest x))) ((equal (first x) 'bad) (cons 'awful (rest x)))))", "(emphasize '(good mystery story))", "(emphasize '(mediocre mystery story))"}, []string{"nil", "(great mystery story)", "nil"}},
 	{[]string{"(defun emphasize2 (x) (cond ((equal (first x) 'good) (cons 'great (rest x))) ((equal (first x) 'bad) (cons 'awful (rest x))) (t x)))", "(emphasize2 '(good day))", "(emphasize2 '(bad day))", "(emphasize2 '(long day))"}, []string{"nil", "(great day)", "(awful day)", "(long day)"}},
 	{[]string{"(defun compute (op x y) (cond ((equal op 'sum-of) (+ x y)) ((equal op 'product-of) (* x y)) (t '(that does not compute))))", "(compute 'sum-of 3 7)", "(compute 'product-of 2 4)", "(compute 'zorch-of 3 1)"}, []string{"nil", "10", "8", "(that does not compute)"}},
+	{[]string{"(defun double (n) (* n 2))", "(double 5)"}, []string{"nil", "10"}},
 }
 
 var baddata = []struct {
@@ -107,6 +108,7 @@ var baddata = []struct {
 	{[]string{"(defun test () (* 85 97))", "(test 1)"}, []bool{false, true}, []string{"", "Error! Too many arguments"}},
 	{[]string{"(defun test () (* 85 97))", "test"}, []bool{false, true}, []string{"", "Error! test unassigned variable"}},
 	{[]string{"(eval (eval (eval '''boing)))"}, []bool{true}, []string{"Error! boing unassigned variable"}},
+	{[]string{"(defun double (n) (* n 2))", "(double 5)", "n"}, []bool{false, false, true}, []string{"nil", "10", "Error! n unassigned variable"}},
 }
 
 func TestGolispBad(t *testing.T) {
@@ -115,7 +117,7 @@ func TestGolispBad(t *testing.T) {
 		for j := range test.expression {
 			log.Printf("TESTING %v", test.expression[j])
 			e := Parse(test.expression[j])
-			p, err := i.Eval(e.(Primitive))
+			p, err := i.Eval(e.(Primitive), make([]Variable, 0))
 			log.Printf("TESTING %v with %v", p, err)
 			if test.fail[j] && err == nil {
 				t.Errorf("Executing %v has not failed and it should have done: %v -> %v", e.str(), p, p.str())
@@ -137,7 +139,7 @@ func TestGolispGood(t *testing.T) {
 		for j := range test.expression {
 			log.Printf("Running test on %v", test.expression[j])
 			e := Parse(test.expression[j])
-			r, err := i.Eval(e.(Primitive))
+			r, err := i.Eval(e.(Primitive), make([]Variable, 0))
 			if err != nil {
 				t.Fatalf("Executing %v has failed for %v", e.str(), err)
 			} else if r.str() != test.result[j] {
