@@ -71,6 +71,11 @@ var testdata = []struct {
 	{[]string{"(if (symbolp 1) (* 5 5) (+ 5 5))"}, []string{"10"}},
 	{[]string{"(defun my-abs (x) (if (< x 0) (- x) x))", "(my-abs -5)", "(my-abs 5)"}, []string{"nil", "5", "5"}},
 	{[]string{"(defun symbol-test (x) (if (symbolp x) (list 'yes x 'is 'a 'symbol) (list 'no x 'is 'not 'a 'symbol)))", "(symbol-test 'rutabaga)", "(symbol-test 12345)"}, []string{"nil", "(yes rutabaga is a symbol)", "(no 12345 is not a symbol)"}},
+	{[]string{"(if t 'happy)"}, []string{"happy"}},
+	{[]string{"(if nil 'happy)"}, []string{"nil"}},
+	{[]string{"(defun compare (x y) (cond ((equal x y) 'numbers-are-the-same) ((< x y) 'first-is-smaller) ((> x y) 'first-is-bigger)))", "(compare 3 5)", "(compare 7 2)", "(compare 4 4)"}, []string{"nil", "first-is-smaller", "first-is-bigger", "numbers-are-the-same"}},
+	{[]string{"(defun compare (x y) (cond ((< x y) 'first-is-smaller) ((> x y) 'first-is-bigger)))", "(compare 5 5)"}, []string{"nil", "nil"}},
+	{[]string{"(defun where-is (x) (cond ((equal x 'paris) 'france) ((equal x 'london) 'england) ((equal x 'beijing) 'china) (t 'unknown)))", "(where-is 'london)", "(where-is 'beijing)", "(where-is 'hackensack)"}, []string{"nil", "england", "china", "unknown"}},
 }
 
 var baddata = []struct {
@@ -133,7 +138,7 @@ func TestGolispGood(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Executing %v has failed for %v", e.str(), err)
 			} else if r.str() != test.result[j] {
-				t.Fatalf("%v did not lead to %v, it lead to %v", test.expression[j], test.result[j], r.str())
+				t.Fatalf("%v did not lead to %v, it lead to %v with %v", test.expression[j], test.result[j], r.str(), test.expression)
 			}
 		}
 	}

@@ -148,6 +148,7 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			i.ops = append(i.ops, op)
 			return Nil{}, nil
 		} else if symbol.value == "list" {
+			log.Printf("LIST: %v", l.str())
 			list := List{start: &listNode{}}
 			currHead := list.start
 			toadd := l.start.next
@@ -190,6 +191,19 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 				log.Printf("Applying function %v", fname.str())
 				return f(&ln)
 			}
+		} else if symbol.value == "cond" {
+			evalList := List{start: l.start.next}
+			curr := evalList.start
+			for curr != nil {
+				t, _ := i.Eval(curr.value.(List).start.value)
+				log.Printf("EVALd %v -> %v", curr.value.(List).start.value.str(), t)
+				if t != nil && t.(Truth).value {
+					r, _ := i.Eval(curr.value.(List).start.next.value)
+					return r, nil
+				}
+				curr = curr.next
+			}
+			return Truth{value: false}, nil
 		}
 
 		// Search through the function table
@@ -200,6 +214,7 @@ func (i *Interpreter) Eval(p Primitive) (Primitive, error) {
 			if err != nil {
 				return nil, err
 			}
+
 			return f(flist)
 		}
 
