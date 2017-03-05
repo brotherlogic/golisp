@@ -80,6 +80,7 @@ var testdata = []struct {
 	{[]string{"(defun emphasize2 (x) (cond ((equal (first x) 'good) (cons 'great (rest x))) ((equal (first x) 'bad) (cons 'awful (rest x))) (t x)))", "(emphasize2 '(good day))", "(emphasize2 '(bad day))", "(emphasize2 '(long day))"}, []string{"nil", "(great day)", "(awful day)", "(long day)"}},
 	{[]string{"(defun compute (op x y) (cond ((equal op 'sum-of) (+ x y)) ((equal op 'product-of) (* x y)) (t '(that does not compute))))", "(compute 'sum-of 3 7)", "(compute 'product-of 2 4)", "(compute 'zorch-of 3 1)"}, []string{"nil", "10", "8", "(that does not compute)"}},
 	{[]string{"(defun double (n) (* n 2))", "(double 5)"}, []string{"nil", "10"}},
+	{[]string{"(setf vowels '(a e i o u))", "(length vowels)", "(rest vowels)", "vowels", "(setf vowels '(a e i o u and sometimes y))", "(rest (rest vowels))"}, []string{"(a e i o u)", "5", "(e i o u)", "(a e i o u)", "(a e i o u and sometimes y)", "(i o u and sometimes y)"}},
 }
 
 var baddata = []struct {

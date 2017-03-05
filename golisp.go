@@ -211,6 +211,22 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 				curr = curr.next
 			}
 			return Truth{value: false}, nil
+		} else if symbol.value == "setf" {
+			name := l.start.next.value.str()
+			value, _ := i.Eval(l.start.next.next.value, vs)
+
+			vf := false
+			for _, v := range i.vars {
+				if v.name == name {
+					v.value = value
+					vf = true
+				}
+			}
+
+			if !vf {
+				i.vars = append(i.vars, &Variable{name: name, value: value})
+			}
+			return value, nil
 		}
 
 		// Search through the function table
