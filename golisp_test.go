@@ -82,6 +82,7 @@ var testdata = []struct {
 	{[]string{"(defun double (n) (* n 2))", "(double 5)"}, []string{"nil", "10"}},
 	{[]string{"(setf vowels '(a e i o u))", "(length vowels)", "(rest vowels)", "vowels", "(setf vowels '(a e i o u and sometimes y))", "(rest (rest vowels))"}, []string{"(a e i o u)", "5", "(e i o u)", "(a e i o u)", "(a e i o u and sometimes y)", "(i o u and sometimes y)"}},
 	{[]string{"(setf long-list '(a b c d e f g h i))", "(setf head (first long-list))", "(setf tail (rest long-list))", "(cons head tail)", "(equal long-list (cons head tail))", "(list head tail)"}, []string{"(a b c d e f g h i)", "a", "(b c d e f g h i)", "(a b c d e f g h i)", "t", "(a (b c d e f g h i))"}},
+	{[]string{"(defun poor-style (p) (setf p (+ p 5)) (list 'result 'is p))", "(poor-style 8)"}, []string{"nil", "(result is 13)"}},
 }
 
 var baddata = []struct {
@@ -111,6 +112,7 @@ var baddata = []struct {
 	{[]string{"(defun test () (* 85 97))", "test"}, []bool{false, true}, []string{"", "Error! test unassigned variable"}},
 	{[]string{"(eval (eval (eval '''boing)))"}, []bool{true}, []string{"Error! boing unassigned variable"}},
 	{[]string{"(defun double (n) (* n 2))", "(double 5)", "n"}, []bool{false, false, true}, []string{"nil", "10", "Error! n unassigned variable"}},
+	{[]string{"(defun poor-style (p) (setf p (+ p 5)) (list 'result 'is p))", "(poor-style 8)", "p"}, []bool{false, false, false}, []string{"", "", "Error! p unassigned variable"}},
 }
 
 func TestGolispBad(t *testing.T) {
