@@ -119,7 +119,10 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 		} else if symbol.value == "*" {
 			first, _ := i.Eval(l.start.next.value, vs)
 			second, _ := i.Eval(l.start.next.next.value, vs)
-			return Integer{value: first.(Integer).value * second.(Integer).value}, nil
+			if first.isInt() && second.isInt() {
+				return Integer{value: first.(Integer).value * second.(Integer).value}, nil
+			}
+			return Float{value: first.floatVal() * second.floatVal()}, nil
 		} else if symbol.value == "/" {
 			first, err1 := i.Eval(l.start.next.value, vs)
 			second, err2 := i.Eval(l.start.next.next.value, vs)
@@ -241,7 +244,7 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 				i.vars = append(i.vars, &Variable{name: name, value: value})
 			}
 			return value, nil
-		} else if symbol.value == "let" {
+		} else if symbol.value == "let" || symbol.value == "let*" {
 			letVars := l.start.next.value.(List)
 			letEval := l.start.next.next.value.(List)
 
@@ -249,7 +252,8 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 			for curr != nil {
 				procList := curr.value.(List)
 				name := procList.start.value.str()
-				value, _ := i.Eval(procList.start.next.value, vs)
+				value, err := i.Eval(procList.start.next.value, vs)
+				log.Printf("LET BINDING %v to %v", name, err)
 				vs = append(vs, Variable{name: name, value: value})
 				curr = curr.next
 			}
@@ -283,6 +287,7 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 				vr := lvars.start
 				val := op.binding.start
 				for vr != nil {
+					log.Printf("WEIRD %v -> %v", vr.value.str(), vr.value.floatVal())
 					eval, _ := i.Eval(vr.value, vs)
 					log.Printf("BINDING %v to %v", eval.str(), val.value.str())
 
@@ -290,9 +295,7 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 					found = false
 					for i, v := range vs {
 						if v.name == val.value.str() {
-							log.Printf("BEFORE %v %v", vs, v)
 							vs[i].value = eval
-							log.Printf("AFTER %v %v", vs, v)
 							found = true
 						}
 					}

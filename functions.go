@@ -23,6 +23,8 @@ func subtract(params *List) (Primitive, error) {
 		second := params.start.next.value
 		if first.isInt() && second.isInt() {
 			return Integer{value: first.(Integer).value - second.(Integer).value}, nil
+		} else if !second.isList() {
+			return Float{value: first.floatVal() - second.floatVal()}, nil
 		}
 
 		return nil, errors.New("Error! Wrong type input to -")

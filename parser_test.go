@@ -118,6 +118,7 @@ var parsetestdata = []struct {
 		next: &listNode{value: List{start: &listNode{value: Symbol{value: "quote"},
 			next: &listNode{value: List{start: &listNode{value: Integer{value: 2},
 				next: &listNode{value: Integer{value: 3}}}}}}}}}}},
+	{"1.25", Float{value: 1.25}},
 }
 
 func printList(l List, layer int) {

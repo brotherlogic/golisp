@@ -169,6 +169,10 @@ type Float struct {
 
 func (f Float) str() string {
 	val := strconv.FormatFloat(f.value, 'f', -1, 64)
+	if len(val) > 7 {
+		log.Printf("SHRINKING %v", val)
+		val = strconv.FormatFloat(f.value, 'f', 1, 64)
+	}
 	if strings.Contains(val, ".") {
 		return val
 	}
@@ -374,7 +378,7 @@ func ParseSingle(str string) Primitive {
 	}
 
 	//Check for floats
-	match, _ = regexp.MatchString("^[0-9]+\\.[0.9]+", str)
+	match, _ = regexp.MatchString("^[0-9]+\\.[0-9]+", str)
 	if match {
 		val, _ := strconv.ParseFloat(str, 64)
 		return Float{value: val}
