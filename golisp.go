@@ -23,7 +23,7 @@ type Variable struct {
 type Operation struct {
 	name    string
 	binding List
-	expr    List
+	expr    []List
 }
 
 func length(l List) Integer {
@@ -140,7 +140,14 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 		} else if symbol.value == "defun" {
 			op := Operation{name: l.start.next.value.str(),
 				binding: l.start.next.next.value.(List),
-				expr:    l.start.next.next.next.value.(List)}
+				expr:    []List{l.start.next.next.next.value.(List)}}
+
+			cr := l.start.next.next.next.next
+			for cr != nil {
+				op.expr = append(op.expr, cr.value.(List))
+				cr = cr.next
+			}
+
 			log.Printf("OP = %v", op)
 
 			//Verify the argument list
@@ -215,6 +222,13 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 			name := l.start.next.value.str()
 			value, _ := i.Eval(l.start.next.next.value, vs)
 
+			// Check the local variables first
+			for j := range vs {
+				if vs[j].name == name {
+					vs[j].value = value
+				}
+			}
+
 			vf := false
 			for _, v := range i.vars {
 				if v.name == name {
@@ -277,8 +291,12 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 					val = val.next
 				}
 
-				log.Printf("BOUND %v to eval %v", vs, op.expr.str())
-				res, err := i.Eval(op.expr, vs)
+				log.Printf("BOUND %v to eval %v with %v in the trunk", vs, op.expr[0].str(), len(op.expr))
+				res, err := i.Eval(op.expr[0], vs)
+				for j := range op.expr[1:] {
+					log.Printf("BOUND %v to eval %v", vs, op.expr[j+1].str())
+					res, err = i.Eval(op.expr[j+1], vs)
+				}
 				return res, err
 			}
 		}
