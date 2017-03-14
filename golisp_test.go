@@ -81,6 +81,7 @@ var testdata = []struct {
 	{[]string{"(defun compute (op x y) (cond ((equal op 'sum-of) (+ x y)) ((equal op 'product-of) (* x y)) (t '(that does not compute))))", "(compute 'sum-of 3 7)", "(compute 'product-of 2 4)", "(compute 'zorch-of 3 1)"}, []string{"nil", "10", "8", "(that does not compute)"}},
 	{[]string{"(defun double (n) (* n 2))", "(double 5)"}, []string{"nil", "10"}},
 	{[]string{"(setf vowels '(a e i o u))", "(length vowels)", "(rest vowels)", "vowels", "(setf vowels '(a e i o u and sometimes y))", "(rest (rest vowels))"}, []string{"(a e i o u)", "5", "(e i o u)", "(a e i o u)", "(a e i o u and sometimes y)", "(i o u and sometimes y)"}},
+	{[]string{"(setf long-list '(a b c d e f g h i))", "(setf head (first long-list))", "(setf tail (rest long-list))", "(cons head tail)", "(equal long-list (cons head tail))", "(list head tail)"}, []string{"(a b c d e f g h i)", "a", "(b c d e f g h i)", "(a b c d e f g h i)", "t", "(a (b c d e f g h i))"}},
 }
 
 var baddata = []struct {
