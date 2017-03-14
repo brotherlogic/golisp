@@ -83,6 +83,7 @@ var testdata = []struct {
 	{[]string{"(setf vowels '(a e i o u))", "(length vowels)", "(rest vowels)", "vowels", "(setf vowels '(a e i o u and sometimes y))", "(rest (rest vowels))"}, []string{"(a e i o u)", "5", "(e i o u)", "(a e i o u)", "(a e i o u and sometimes y)", "(i o u and sometimes y)"}},
 	{[]string{"(setf long-list '(a b c d e f g h i))", "(setf head (first long-list))", "(setf tail (rest long-list))", "(cons head tail)", "(equal long-list (cons head tail))", "(list head tail)"}, []string{"(a b c d e f g h i)", "a", "(b c d e f g h i)", "(a b c d e f g h i)", "t", "(a (b c d e f g h i))"}},
 	{[]string{"(defun poor-style (p) (setf p (+ p 5)) (list 'result 'is p))", "(poor-style 8)"}, []string{"nil", "(result is 13)"}},
+	{[]string{"(defun average (x y) (let ((sum (+ x y))) (list x y 'average 'is (/ sum 2.0))))", "(average 3 7)"}, []string{"nil", "(3 7 average is 5.0)"}},
 }
 
 var baddata = []struct {

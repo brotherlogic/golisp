@@ -241,6 +241,19 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 				i.vars = append(i.vars, &Variable{name: name, value: value})
 			}
 			return value, nil
+		} else if symbol.value == "let" {
+			letVars := l.start.next.value.(List)
+			letEval := l.start.next.next.value.(List)
+
+			curr := letVars.start
+			for curr != nil {
+				procList := curr.value.(List)
+				name := procList.start.value.str()
+				value, _ := i.Eval(procList.start.next.value, vs)
+				vs = append(vs, Variable{name: name, value: value})
+				curr = curr.next
+			}
+			return i.Eval(letEval, vs)
 		}
 
 		// Search through the function table
