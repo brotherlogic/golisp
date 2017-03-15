@@ -84,6 +84,7 @@ var testdata = []struct {
 	{[]string{"(setf long-list '(a b c d e f g h i))", "(setf head (first long-list))", "(setf tail (rest long-list))", "(cons head tail)", "(equal long-list (cons head tail))", "(list head tail)"}, []string{"(a b c d e f g h i)", "a", "(b c d e f g h i)", "(a b c d e f g h i)", "t", "(a (b c d e f g h i))"}},
 	{[]string{"(defun poor-style (p) (setf p (+ p 5)) (list 'result 'is p))", "(poor-style 8)"}, []string{"nil", "(result is 13)"}},
 	{[]string{"(defun average (x y) (let ((sum (+ x y))) (list x y 'average 'is (/ sum 2.0))))", "(average 3 7)"}, []string{"nil", "(3 7 average is 5.0)"}},
+	{[]string{"(defun price-change (old new) (let* ((diff (- new old)) (proportion (/ diff old)) (percentage (* proportion 100.0))) (list 'widgets 'changed 'by percentage 'percent)))", "(price-change 1.25 1.35)"}, []string{"nil", "(widgets changed by 8.0 percent)"}},
 }
 
 var baddata = []struct {
@@ -125,13 +126,13 @@ func TestGolispBad(t *testing.T) {
 			p, err := i.Eval(e.(Primitive), make([]Variable, 0))
 			log.Printf("TESTING %v with %v", p, err)
 			if test.fail[j] && err == nil {
-				t.Errorf("Executing %v has not failed and it should have done: %v -> %v", e.str(), p, p.str())
+				t.Fatalf("Executing %v has not failed and it should have done: %v -> %v", e.str(), p, p.str())
 			} else if !test.fail[j] && err != nil {
-				t.Errorf("Executing %v has failed and it shouldn't have done: %v -> %v leads to %v", e.str(), p, p, err)
+				t.Fatalf("Executing %v has failed and it shouldn't have done: %v -> %v leads to %v", e.str(), p, p, err)
 			}
 			if err != nil && test.message[j] != "" {
 				if test.message[j] != err.Error() {
-					t.Errorf("Error messages don't match %v vs %v", test.message[j], err.Error())
+					t.Fatalf("Error messages don't match %v vs %v", test.message[j], err.Error())
 				}
 			}
 		}
