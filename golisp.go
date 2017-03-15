@@ -96,7 +96,7 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 					return v.value, nil
 				}
 			}
-			return nil, fmt.Errorf("Error! %v unassigned variable", p.str())
+			return nil, fmt.Errorf("%v unassigned variable", p.str())
 		}
 
 		return p, nil
@@ -126,6 +126,9 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 		} else if symbol.value == "/" {
 			first, err1 := i.Eval(l.start.next.value, vs)
 			second, err2 := i.Eval(l.start.next.next.value, vs)
+			if err1 != nil {
+				return nil, err1
+			}
 			log.Printf("DIVIDE: %v and %v", err1, err2)
 			if first.isInt() && second.isInt() {
 				return Ratio{numerator: first.(Integer).value, denominator: second.(Integer).value}, nil
@@ -244,7 +247,7 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 				i.vars = append(i.vars, &Variable{name: name, value: value})
 			}
 			return value, nil
-		} else if symbol.value == "let" || symbol.value == "let*" {
+		} else if symbol.value == "let*" {
 			letVars := l.start.next.value.(List)
 			letEval := l.start.next.next.value.(List)
 
@@ -257,6 +260,25 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 				vs = append(vs, Variable{name: name, value: value})
 				curr = curr.next
 			}
+			return i.Eval(letEval, vs)
+		} else if symbol.value == "let" {
+			log.Printf("LETTING: %v", l.start.next.next.value.(List).str())
+			letVars := l.start.next.value.(List)
+			letEval := l.start.next.next.value.(List)
+
+			curr := letVars.start
+			var addvars []Variable
+			for curr != nil {
+				procList := curr.value.(List)
+				name := procList.start.value.str()
+				value, err := i.Eval(procList.start.next.value, vs)
+				if err != nil {
+					return nil, err
+				}
+				addvars = append(addvars, Variable{name: name, value: value})
+				curr = curr.next
+			}
+			vs = append(vs, addvars...)
 			return i.Eval(letEval, vs)
 		}
 
@@ -309,6 +331,9 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 
 				log.Printf("BOUND %v to eval %v with %v in the trunk", vs, op.expr[0].str(), len(op.expr))
 				res, err := i.Eval(op.expr[0], vs)
+				if err != nil {
+					return nil, errors.New("Error in function " + op.name + ": " + err.Error())
+				}
 				for j := range op.expr[1:] {
 					log.Printf("BOUND %v to eval %v", vs, op.expr[j+1].str())
 					res, err = i.Eval(op.expr[j+1], vs)
@@ -325,5 +350,5 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 	}
 
 	log.Printf("Bottoming out")
-	return nil, errors.New("Error! '" + l.start.value.str() + "' undefined function")
+	return nil, errors.New("'" + l.start.value.str() + "' undefined function")
 }
