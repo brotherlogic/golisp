@@ -15,6 +15,32 @@ var funcs = map[string]func(*List) (Primitive, error){
 	"<":       lessthan,
 	">":       greaterthan,
 	"-":       subtract,
+	"max":     max,
+	"min":     min,
+}
+
+func max(params *List) (Primitive, error) {
+	curr := params.start.next
+	maxv := params.start.value.(Integer)
+	for curr != nil {
+		if curr.value.(Integer).value > maxv.value {
+			maxv = curr.value.(Integer)
+		}
+		curr = curr.next
+	}
+	return maxv, nil
+}
+
+func min(params *List) (Primitive, error) {
+	curr := params.start.next
+	minv := params.start.value.(Integer)
+	for curr != nil {
+		if curr.value.(Integer).value < minv.value {
+			minv = curr.value.(Integer)
+		}
+		curr = curr.next
+	}
+	return minv, nil
 }
 
 func subtract(params *List) (Primitive, error) {

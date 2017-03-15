@@ -1,7 +1,9 @@
 package golisp
 
 import (
+	"errors"
 	"log"
+	"strings"
 	"testing"
 )
 
@@ -105,16 +107,17 @@ var baddata = []struct {
 	{[]string{"('foo 'bar 'baz)"}, []bool{true}, []string{"Error! 'foo' undefined function"}},
 	{[]string{"(list foo bar baz)"}, []bool{true}, []string{"Error! foo unassigned variable"}},
 	{[]string{"(foo bar baz)"}, []bool{true}, []string{"Error! 'foo' undefined function"}},
-	{[]string{"(defun intro ('x 'y) (list x 'this 'is y))"}, []bool{true}, []string{"Bad argument list"}},
-	{[]string{"(defun intro ((x) (y)) (list x 'this 'is y))"}, []bool{true}, []string{"Bad argument list"}},
-	{[]string{"(defun intro (x y) (list (x) 'this 'is (y)))", "(intro 'stanley 'livingstone)"}, []bool{false, true}, []string{"", "Error! 'x' undefined function"}},
-	{[]string{"(defun intro (x y) (list x this is y))", "(intro 'stanley 'livingstone)"}, []bool{false, true}, []string{"", "Error! this unassigned variable"}},
+	{[]string{"(defun intro ('x 'y) (list x 'this 'is y))"}, []bool{true}, []string{"Error! Bad argument list"}},
+	{[]string{"(defun intro ((x) (y)) (list x 'this 'is y))"}, []bool{true}, []string{"Error! Bad argument list"}},
+	{[]string{"(defun intro (x y) (list (x) 'this 'is (y)))", "(intro 'stanley 'livingstone)"}, []bool{false, true}, []string{"", "Error in function intro: 'x' undefined function"}},
+	{[]string{"(defun intro (x y) (list x this is y))", "(intro 'stanley 'livingstone)"}, []bool{false, true}, []string{"", "Error in function intro: this unassigned variable"}},
 	{[]string{"(defun double (n) (* n 2))", "n"}, []bool{false, true}, []string{"", "Error! n unassigned variable"}},
 	{[]string{"(defun test () (* 85 97))", "(test 1)"}, []bool{false, true}, []string{"", "Error! Too many arguments"}},
 	{[]string{"(defun test () (* 85 97))", "test"}, []bool{false, true}, []string{"", "Error! test unassigned variable"}},
 	{[]string{"(eval (eval (eval '''boing)))"}, []bool{true}, []string{"Error! boing unassigned variable"}},
 	{[]string{"(defun double (n) (* n 2))", "(double 5)", "n"}, []bool{false, false, true}, []string{"nil", "10", "Error! n unassigned variable"}},
 	{[]string{"(defun poor-style (p) (setf p (+ p 5)) (list 'result 'is p))", "(poor-style 8)", "p"}, []bool{false, false, false}, []string{"", "", "Error! p unassigned variable"}},
+	{[]string{"(defun faulty-size-range (x y z) (let ((biggest (max x y z)) (smallest (min x y z)) (r (/ biggest smallest 1.0))) (list 'factor 'of r)))", "(faulty-size-range 35 87 4)"}, []bool{false, true}, []string{"", "Error in function faulty-size-range: biggest unassigned variable"}},
 }
 
 func TestGolispBad(t *testing.T) {
@@ -124,6 +127,9 @@ func TestGolispBad(t *testing.T) {
 			log.Printf("TESTING %v", test.expression[j])
 			e := Parse(test.expression[j])
 			p, err := i.Eval(e.(Primitive), make([]Variable, 0))
+			if err != nil && !strings.HasPrefix(err.Error(), "Error") {
+				err = errors.New("Error! " + err.Error())
+			}
 			log.Printf("TESTING %v with %v", p, err)
 			if test.fail[j] && err == nil {
 				t.Fatalf("Executing %v has not failed and it should have done: %v -> %v", e.str(), p, p.str())
@@ -132,7 +138,7 @@ func TestGolispBad(t *testing.T) {
 			}
 			if err != nil && test.message[j] != "" {
 				if test.message[j] != err.Error() {
-					t.Fatalf("Error messages don't match %v vs %v", test.message[j], err.Error())
+					t.Fatalf("Error messages don't match %v vs %v but %v", test.message[j], err.Error(), err)
 				}
 			}
 		}
