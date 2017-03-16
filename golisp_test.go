@@ -88,6 +88,7 @@ var testdata = []struct {
 	{[]string{"(defun average (x y) (let ((sum (+ x y))) (list x y 'average 'is (/ sum 2.0))))", "(average 3 7)"}, []string{"nil", "(3 7 average is 5.0)"}},
 	{[]string{"(defun price-change (old new) (let* ((diff (- new old)) (proportion (/ diff old)) (percentage (* proportion 100.0))) (list 'widgets 'changed 'by percentage 'percent)))", "(price-change 1.25 1.35)"}, []string{"nil", "(widgets changed by 8.0 percent)"}},
 	{[]string{"(setf x 57)", "(defun newvar (x) (list 'value 'of 'x 'is x))", "x", "(newvar 'whoopie)", "x"}, []string{"57", "nil", "57", "(value of x is whoopie)", "57"}},
+	{[]string{"(setf a 100)", "(defun f (a) (list a (g ( + a 1))))", "(defun g (b) (list a b))", "(f 3)"}, []string{"100", "nil", "nil", "(3 (100 4))"}},
 }
 
 var baddata = []struct {
@@ -150,7 +151,7 @@ func TestGolispGood(t *testing.T) {
 	for _, test := range testdata {
 		i := Init()
 		for j := range test.expression {
-			log.Printf("Running test on %v", test.expression[j])
+			log.Printf("TESTING running test on %v", test.expression[j])
 			e := Parse(test.expression[j])
 			r, err := i.Eval(e.(Primitive), make([]Variable, 0))
 			if err != nil {
