@@ -295,7 +295,7 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 		}
 
 		// If no operator is found, search through local ops
-		log.Printf("Searching %v", i.ops)
+		log.Printf("Searching local ops to evaluate %v with %v", l.str(), vs)
 		for _, op := range i.ops {
 			if op.name == symbol.value {
 				lvars := List{start: l.start.next}
@@ -306,6 +306,7 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 				}
 
 				//Bind the variables
+				var localvs []Variable
 				vr := lvars.start
 				val := op.binding.start
 				for vr != nil {
@@ -313,30 +314,20 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 					eval, _ := i.Eval(vr.value, vs)
 					log.Printf("BINDING %v to %v", eval.str(), val.value.str())
 
-					//Override first, then bind a new variable
-					found = false
-					for i, v := range vs {
-						if v.name == val.value.str() {
-							vs[i].value = eval
-							found = true
-						}
-					}
-					if !found {
-						vs = append(vs, Variable{name: val.value.str(), value: eval})
-					}
+					localvs = append(localvs, Variable{name: val.value.str(), value: eval})
 
 					vr = vr.next
 					val = val.next
 				}
 
 				log.Printf("BOUND %v to eval %v with %v in the trunk", vs, op.expr[0].str(), len(op.expr))
-				res, err := i.Eval(op.expr[0], vs)
+				res, err := i.Eval(op.expr[0], localvs)
 				if err != nil {
 					return nil, errors.New("Error in function " + op.name + ": " + err.Error())
 				}
 				for j := range op.expr[1:] {
-					log.Printf("BOUND %v to eval %v", vs, op.expr[j+1].str())
-					res, err = i.Eval(op.expr[j+1], vs)
+					log.Printf("BOUND %v to eval %v", localvs, op.expr[j+1].str())
+					res, err = i.Eval(op.expr[j+1], localvs)
 				}
 				return res, err
 			}
