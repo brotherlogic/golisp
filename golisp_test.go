@@ -87,6 +87,7 @@ var testdata = []struct {
 	{[]string{"(defun poor-style (p) (setf p (+ p 5)) (list 'result 'is p))", "(poor-style 8)"}, []string{"nil", "(result is 13)"}},
 	{[]string{"(defun average (x y) (let ((sum (+ x y))) (list x y 'average 'is (/ sum 2.0))))", "(average 3 7)"}, []string{"nil", "(3 7 average is 5.0)"}},
 	{[]string{"(defun price-change (old new) (let* ((diff (- new old)) (proportion (/ diff old)) (percentage (* proportion 100.0))) (list 'widgets 'changed 'by percentage 'percent)))", "(price-change 1.25 1.35)"}, []string{"nil", "(widgets changed by 8.0 percent)"}},
+	{[]string{"(setf x 57)", "(defun newvar (x) (list 'value 'of 'x 'is x))", "x", "(newvar 'whoopie)", "x"}, []string{"57", "nil", "57", "(value of x is whoopie)", "57"}},
 }
 
 var baddata = []struct {
