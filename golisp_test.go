@@ -91,6 +91,8 @@ var testdata = []struct {
 	{[]string{"(setf a 100)", "(defun f (a) (list a (g ( + a 1))))", "(defun g (b) (list a b))", "(f 3)"}, []string{"100", "nil", "nil", "(3 (100 4))"}},
 	{[]string{"(cons 'w '(x y z))"}, []string{"(w x y z)"}},
 	{[]string{"(cons '(a b c) 'd)"}, []string{"((a b c) . d)"}},
+	{[]string{"(append '(friends romans) '(and countrymen))"}, []string{"(friends romans and countrymen)"}},
+	{[]string{"(append '(l m n o) '(p q r))"}, []string{"(l m n o p q r)"}},
 }
 
 var baddata = []struct {
