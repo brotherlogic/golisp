@@ -78,7 +78,12 @@ func symbolp(params *List) (Primitive, error) {
 func cons(params *List) (Primitive, error) {
 	head := params.start.value
 	rest := params.start.next.value
-	return List{start: &listNode{value: head, next: rest.(List).start}}, nil
+
+	restList, ok := rest.(List)
+	if ok {
+		return List{start: &listNode{value: head, next: restList.start}}, nil
+	}
+	return List{start: &listNode{value: head, next: &listNode{value: rest, single: true}}}, nil
 }
 
 func plus(params *List) (Primitive, error) {

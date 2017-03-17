@@ -89,6 +89,8 @@ var testdata = []struct {
 	{[]string{"(defun price-change (old new) (let* ((diff (- new old)) (proportion (/ diff old)) (percentage (* proportion 100.0))) (list 'widgets 'changed 'by percentage 'percent)))", "(price-change 1.25 1.35)"}, []string{"nil", "(widgets changed by 8.0 percent)"}},
 	{[]string{"(setf x 57)", "(defun newvar (x) (list 'value 'of 'x 'is x))", "x", "(newvar 'whoopie)", "x"}, []string{"57", "nil", "57", "(value of x is whoopie)", "57"}},
 	{[]string{"(setf a 100)", "(defun f (a) (list a (g ( + a 1))))", "(defun g (b) (list a b))", "(f 3)"}, []string{"100", "nil", "nil", "(3 (100 4))"}},
+	{[]string{"(cons 'w '(x y z))"}, []string{"(w x y z)"}},
+	{[]string{"(cons '(a b c) 'd)"}, []string{"((a b c) . d)"}},
 }
 
 var baddata = []struct {
