@@ -17,6 +17,20 @@ var funcs = map[string]func(*List) (Primitive, error){
 	"-":       subtract,
 	"max":     max,
 	"min":     min,
+	"append":  appendf,
+}
+
+func appendf(params *List) (Primitive, error) {
+	first := params.start.value.(List)
+	second := params.start.next.value.(List)
+
+	rList := List{start: first.start}
+	curr := rList.start
+	for curr.next != nil {
+		curr = curr.next
+	}
+	curr.next = second.start
+	return rList, nil
 }
 
 func max(params *List) (Primitive, error) {
