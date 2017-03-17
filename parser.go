@@ -116,7 +116,11 @@ func (l List) str() string {
 			rep += node.value.str()
 			first = false
 		} else {
-			rep += " " + node.value.str()
+			if node.single {
+				rep += " . " + node.value.str()
+			} else {
+				rep += " " + node.value.str()
+			}
 		}
 		node = node.next
 	}
@@ -125,8 +129,9 @@ func (l List) str() string {
 }
 
 type listNode struct {
-	value Primitive
-	next  *listNode
+	value  Primitive
+	next   *listNode
+	single bool
 }
 
 // Integer is a base value of int type
