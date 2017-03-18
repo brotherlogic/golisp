@@ -21,6 +21,15 @@ var funcs = map[string]func(*List) (Primitive, error){
 }
 
 func appendf(params *List) (Primitive, error) {
+
+	if params.start.value.isNil() {
+		return params.start.next.value, nil
+	}
+
+	if params.start.next.value.isNil() {
+		return List{start: params.start.value.(List).start}, nil
+	}
+
 	first := params.start.value.(List)
 	second := params.start.next.value.(List)
 
