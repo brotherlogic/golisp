@@ -96,6 +96,7 @@ var testdata = []struct {
 	{[]string{"(append '(april showers) nil)"}, []string{"(april showers)"}},
 	{[]string{"(append nil '(bring may flowers))"}, []string{"(bring may flowers)"}},
 	{[]string{"(append nil nil)"}, []string{"nil"}},
+	{[]string{"(append '((a 1) (b 2)) '((c 3) (d 4)))"}, []string{"((a 1) (b 2) (c 3) (d 4))"}},
 }
 
 var baddata = []struct {
