@@ -93,6 +93,9 @@ var testdata = []struct {
 	{[]string{"(cons '(a b c) 'd)"}, []string{"((a b c) . d)"}},
 	{[]string{"(append '(friends romans) '(and countrymen))"}, []string{"(friends romans and countrymen)"}},
 	{[]string{"(append '(l m n o) '(p q r))"}, []string{"(l m n o p q r)"}},
+	{[]string{"(append '(april showers) nil)"}, []string{"(april showers)"}},
+	{[]string{"(append nil '(bring may flowers))"}, []string{"(bring may flowers)"}},
+	{[]string{"(append nil nil)"}, []string{"nil"}},
 }
 
 var baddata = []struct {
