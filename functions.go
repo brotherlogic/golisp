@@ -30,15 +30,24 @@ func appendf(params *List) (Primitive, error) {
 		return List{start: params.start.value.(List).start}, nil
 	}
 
-	first := params.start.value.(List)
-	second := params.start.next.value.(List)
+	if !params.start.value.isList() {
+		return nil, errors.New(params.start.value.str() + " is not a list")
+	}
 
+	first := params.start.value.(List)
 	rList := List{start: first.start}
 	curr := rList.start
 	for curr.next != nil {
 		curr = curr.next
 	}
-	curr.next = second.start
+
+	if params.start.next.value.isList() {
+		second := params.start.next.value.(List)
+		curr.next = second.start
+	} else {
+		curr.next = &listNode{value: params.start.next.value, single: true}
+	}
+
 	return rList, nil
 }
 

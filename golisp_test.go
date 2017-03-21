@@ -97,6 +97,7 @@ var testdata = []struct {
 	{[]string{"(append nil '(bring may flowers))"}, []string{"(bring may flowers)"}},
 	{[]string{"(append nil nil)"}, []string{"nil"}},
 	{[]string{"(append '((a 1) (b 2)) '((c 3) (d 4)))"}, []string{"((a 1) (b 2) (c 3) (d 4))"}},
+	{[]string{"(append '(w x y) 'z)"}, []string{"(w x y . z)"}},
 }
 
 var baddata = []struct {
@@ -128,6 +129,7 @@ var baddata = []struct {
 	{[]string{"(defun double (n) (* n 2))", "(double 5)", "n"}, []bool{false, false, true}, []string{"nil", "10", "Error! n unassigned variable"}},
 	{[]string{"(defun poor-style (p) (setf p (+ p 5)) (list 'result 'is p))", "(poor-style 8)", "p"}, []bool{false, false, false}, []string{"", "", "Error! p unassigned variable"}},
 	{[]string{"(defun faulty-size-range (x y z) (let ((biggest (max x y z)) (smallest (min x y z)) (r (/ biggest smallest 1.0))) (list 'factor 'of r)))", "(faulty-size-range 35 87 4)"}, []bool{false, true}, []string{"", "Error in function faulty-size-range: biggest unassigned variable"}},
+	{[]string{"(append 'a '(b c d))"}, []bool{true}, []string{"Error! a is not a list"}},
 }
 
 func TestGolispBad(t *testing.T) {
