@@ -98,6 +98,7 @@ var testdata = []struct {
 	{[]string{"(append nil nil)"}, []string{"nil"}},
 	{[]string{"(append '((a 1) (b 2)) '((c 3) (d 4)))"}, []string{"((a 1) (b 2) (c 3) (d 4))"}},
 	{[]string{"(append '(w x y) 'z)"}, []string{"(w x y . z)"}},
+	{[]string{"(append '(a b c) '(d))"}, []string{"(a b c d)"}},
 }
 
 var baddata = []struct {
