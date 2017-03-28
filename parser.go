@@ -113,7 +113,9 @@ func (l List) str() string {
 	for node != nil {
 		if first {
 			log.Printf("Trying to print %v", node)
-			rep += node.value.str()
+			if node.value != nil {
+				rep += node.value.str()
+			}
 			first = false
 		} else {
 			if node.single {

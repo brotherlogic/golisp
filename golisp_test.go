@@ -108,6 +108,9 @@ var testdata = []struct {
 	{[]string{"(cons '(eat at) 'joes)"}, []string{"((eat at) . joes)"}},
 	{[]string{"(list '(eat at) 'joes)"}, []string{"((eat at) joes)"}},
 	{[]string{"(append '(eat at) 'joes)"}, []string{"(eat at . joes)"}},
+	{[]string{"(reverse '(one two three four five))"}, []string{"(five four three two one)"}},
+	{[]string{"(reverse '(l i v e))"}, []string{"(e v i l)"}},
+	{[]string{"(reverse '((my oversight) (your blunder) (his negligence)))"}, []string{"((his negligence) (your blunder) (my oversight))"}},
 }
 
 var baddata = []struct {
@@ -141,6 +144,7 @@ var baddata = []struct {
 	{[]string{"(defun faulty-size-range (x y z) (let ((biggest (max x y z)) (smallest (min x y z)) (r (/ biggest smallest 1.0))) (list 'factor 'of r)))", "(faulty-size-range 35 87 4)"}, []bool{false, true}, []string{"", "Error in function faulty-size-range: biggest unassigned variable"}},
 	{[]string{"(append 'a '(b c d))"}, []bool{true}, []string{"Error! a is not a list"}},
 	{[]string{"(append 'rice '(and beans))"}, []bool{true}, []string{"Error! rice is not a list"}},
+	{[]string{"(reverse 'live)"}, []bool{true}, []string{"Error! Wrong type input"}},
 }
 
 func TestGolispBad(t *testing.T) {
