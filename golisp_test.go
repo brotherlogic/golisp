@@ -105,6 +105,9 @@ var testdata = []struct {
 	{[]string{"(cons '(here today) '(gone tomorrow))"}, []string{"((here today) gone tomorrow)"}},
 	{[]string{"(list '(here today) '(gone tomorrow))"}, []string{"((here today) (gone tomorrow))"}},
 	{[]string{"(append '(here today) '(gone tomorrow))"}, []string{"(here today gone tomorrow)"}},
+	{[]string{"(cons '(eat at) 'joes)"}, []string{"((eat at) . joes)"}},
+	{[]string{"(list '(eat at) 'joes)"}, []string{"((eat at) joes)"}},
+	{[]string{"(append '(eat at) 'joes)"}, []string{"(eat at . joes)"}},
 }
 
 var baddata = []struct {
