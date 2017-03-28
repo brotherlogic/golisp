@@ -102,6 +102,9 @@ var testdata = []struct {
 	{[]string{"(defun add-to-end (x e) (append x (list e)))", "(add-to-end '(a b c) 'd)"}, []string{"nil", "(a b c d)"}},
 	{[]string{"(cons 'rice '(and beans))"}, []string{"(rice and beans)"}},
 	{[]string{"(list 'rice '(and beans))"}, []string{"(rice (and beans))"}},
+	{[]string{"(cons '(here today) '(gone tomorrow))"}, []string{"((here today) gone tomorrow)"}},
+	{[]string{"(list '(here today) '(gone tomorrow))"}, []string{"((here today) (gone tomorrow))"}},
+	{[]string{"(append '(here today) '(gone tomorrow))"}, []string{"(here today gone tomorrow)"}},
 }
 
 var baddata = []struct {
