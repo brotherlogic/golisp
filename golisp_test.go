@@ -111,6 +111,7 @@ var testdata = []struct {
 	{[]string{"(reverse '(one two three four five))"}, []string{"(five four three two one)"}},
 	{[]string{"(reverse '(l i v e))"}, []string{"(e v i l)"}},
 	{[]string{"(reverse '((my oversight) (your blunder) (his negligence)))"}, []string{"((his negligence) (your blunder) (my oversight))"}},
+	{[]string{"(setf vow '(to have and to hold))", "(reverse vow)", "vow"}, []string{"(to have and to hold)", "(hold to and have to)", "(to have and to hold)"}},
 }
 
 var baddata = []struct {
