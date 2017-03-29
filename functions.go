@@ -21,6 +21,23 @@ var funcs = map[string]func(*List) (Primitive, error){
 	"reverse": reversef,
 }
 
+func copy(l List) List {
+	nList := List{}
+	lNode := &listNode{}
+	nList.start = lNode
+	cNode := l.start
+	for cNode != nil {
+		lNode.value = cNode.value
+		if cNode.next != nil {
+			lNode.next = &listNode{}
+			lNode = lNode.next
+		}
+		cNode = cNode.next
+	}
+
+	return nList
+}
+
 func reverseh(l *listNode) (*listNode, *listNode) {
 	if l.next == nil {
 		return l, l
@@ -37,7 +54,7 @@ func reversef(params *List) (Primitive, error) {
 		return nil, errors.New("Wrong type input")
 	}
 
-	mainList := params.start.value.(List)
+	mainList := copy(params.start.value.(List))
 	r, _ := reverseh(mainList.start)
 	return List{start: r}, nil
 }
