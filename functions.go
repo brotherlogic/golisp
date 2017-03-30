@@ -19,6 +19,30 @@ var funcs = map[string]func(*List) (Primitive, error){
 	"min":     min,
 	"append":  appendf,
 	"reverse": reversef,
+	"cdr":     cdr,
+	"nthcdr":  nthcdr,
+}
+
+func cdr(l *List) (Primitive, error) {
+	return List{start: l.start.next}, nil
+}
+
+func nthcdr(l *List) (Primitive, error) {
+	log.Printf("NTHCDR: %v, %v", l.str(), l.start.next.value)
+	if l.start.next.value == nil || l.start.next.value.isNil() || l.start.next.value.(List).start == nil {
+		return Nil{}, nil
+	}
+
+	log.Printf("VALUE = %v", l.start.value.str())
+	val := l.start.value.(Integer).value
+	if val > 0 {
+		ll := l.start.next.value.(List)
+		cdrv, _ := cdr(&ll)
+		log.Printf("BUILT %v", cdrv.str())
+		return nthcdr(&List{start: &listNode{value: Integer{value: val - 1}, next: &listNode{value: cdrv}}})
+	}
+
+	return l.start.next.value, nil
 }
 
 func copy(l List) List {

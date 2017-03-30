@@ -113,6 +113,12 @@ var testdata = []struct {
 	{[]string{"(reverse '((my oversight) (your blunder) (his negligence)))"}, []string{"((his negligence) (your blunder) (my oversight))"}},
 	{[]string{"(setf vow '(to have and to hold))", "(reverse vow)", "vow"}, []string{"(to have and to hold)", "(hold to and have to)", "(to have and to hold)"}},
 	{[]string{"(defun add-to-end (x y) (reverse (cons y (reverse x))))", "(add-to-end '(a b c) 'd)"}, []string{"nil", "(a b c d)"}},
+	{[]string{"(nthcdr 0 '(a b c))"}, []string{"(a b c)"}},
+	{[]string{"(nthcdr 1 '(a b c))"}, []string{"(b c)"}},
+	{[]string{"(nthcdr 2 '(a b c))"}, []string{"(c)"}},
+	{[]string{"(nthcdr 3 '(a b c))"}, []string{"nil"}},
+	{[]string{"(nthcdr 4 '(a b c))"}, []string{"nil"}},
+	{[]string{"(nthcdr 5 '(a b c))"}, []string{"nil"}},
 }
 
 var baddata = []struct {
