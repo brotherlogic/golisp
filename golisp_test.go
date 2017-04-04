@@ -119,6 +119,8 @@ var testdata = []struct {
 	{[]string{"(nthcdr 3 '(a b c))"}, []string{"nil"}},
 	{[]string{"(nthcdr 4 '(a b c))"}, []string{"nil"}},
 	{[]string{"(nthcdr 5 '(a b c))"}, []string{"nil"}},
+	{[]string{"(nthcdr 2 '(a b c . d))"}, []string{"(c . d)"}},
+	{[]string{"(nthcdr 3 '(a b c . d))"}, []string{"d"}},
 }
 
 var baddata = []struct {
@@ -153,6 +155,7 @@ var baddata = []struct {
 	{[]string{"(append 'a '(b c d))"}, []bool{true}, []string{"Error! a is not a list"}},
 	{[]string{"(append 'rice '(and beans))"}, []bool{true}, []string{"Error! rice is not a list"}},
 	{[]string{"(reverse 'live)"}, []bool{true}, []string{"Error! Wrong type input"}},
+	{[]string{"(nthcdr 4 '(a b c . d))"}, []bool{true}, []string{"Error! d is not a list"}},
 }
 
 func TestGolispBad(t *testing.T) {

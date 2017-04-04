@@ -108,6 +108,9 @@ func (l List) len() int {
 
 func (l List) str() string {
 	rep := "("
+	if l.start != nil && l.start.single {
+		rep = ""
+	}
 	node := l.start
 	first := true
 	for node != nil {
@@ -126,7 +129,9 @@ func (l List) str() string {
 		}
 		node = node.next
 	}
-	rep += ")"
+	if l.start != nil && !l.start.single {
+		rep += ")"
+	}
 	return rep
 }
 
@@ -427,6 +432,7 @@ func Parse(strin string) Primitive {
 	stack := listStack{}
 	current := &listNode{value: &Nil{}}
 	stack = stack.Push(current)
+	isSingle := false
 	for _, val := range elems[1 : len(elems)-1] {
 		if val == "(" || val == "'(" {
 			newln := &listNode{value: &Nil{}}
@@ -440,12 +446,17 @@ func Parse(strin string) Primitive {
 			current = newln
 		} else if val == ")" {
 			stack, current = stack.Pop()
+		} else if val == "." {
+			isSingle = true
 		} else {
 			if current.value != nil && !current.value.isNil() {
 				log.Printf("Adding new node for %v", current.value.str())
 				newnd := &listNode{}
 				current.next = newnd
 				current = newnd
+			}
+			if isSingle {
+				current.single = true
 			}
 			current.value = ParseSingle(val)
 		}

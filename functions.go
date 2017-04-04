@@ -24,11 +24,15 @@ var funcs = map[string]func(*List) (Primitive, error){
 }
 
 func cdr(l *List) (Primitive, error) {
+	if l.start.single {
+		return nil, errors.New(l.str() + " is not a list")
+	}
 	return List{start: l.start.next}, nil
 }
 
 func nthcdr(l *List) (Primitive, error) {
 	log.Printf("NTHCDR: %v, %v", l.str(), l.start.next.value)
+
 	if l.start.next.value == nil || l.start.next.value.isNil() || l.start.next.value.(List).start == nil {
 		return Nil{}, nil
 	}
@@ -37,7 +41,10 @@ func nthcdr(l *List) (Primitive, error) {
 	val := l.start.value.(Integer).value
 	if val > 0 {
 		ll := l.start.next.value.(List)
-		cdrv, _ := cdr(&ll)
+		cdrv, err := cdr(&ll)
+		if err != nil {
+			return nil, err
+		}
 		log.Printf("BUILT %v", cdrv.str())
 		return nthcdr(&List{start: &listNode{value: Integer{value: val - 1}, next: &listNode{value: cdrv}}})
 	}
