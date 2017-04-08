@@ -23,6 +23,28 @@ var funcs = map[string]func(*List) (Primitive, error){
 	"nthcdr":  nthcdr,
 	"nth":     nth,
 	"car":     car,
+	"last":    last,
+}
+
+func last(l *List) (Primitive, error) {
+	if l.start.value == nil || l.start.value.isNil() {
+		return l.start.value, nil
+	}
+
+	if l.start.value.isList() {
+		listy := l.start.value.(List)
+		return doLast(&listy)
+	}
+
+	return nil, errors.New(l.start.value.str() + " is not a list")
+}
+
+func doLast(l *List) (Primitive, error) {
+	if l.start.next == nil || l.start.next.value.isNil() || l.start.next.single {
+		return l, nil
+	}
+
+	return doLast(&List{start: l.start.next})
 }
 
 func car(l *List) (Primitive, error) {
