@@ -21,6 +21,21 @@ var funcs = map[string]func(*List) (Primitive, error){
 	"reverse": reversef,
 	"cdr":     cdr,
 	"nthcdr":  nthcdr,
+	"nth":     nth,
+	"car":     car,
+}
+
+func car(l *List) (Primitive, error) {
+	return l.start.value, nil
+}
+
+func nth(l *List) (Primitive, error) {
+	nc, _ := nthcdr(l)
+	if nc == nil || nc.isNil() {
+		return nc, nil
+	}
+	ncl := nc.(List)
+	return car(&ncl)
 }
 
 func cdr(l *List) (Primitive, error) {
