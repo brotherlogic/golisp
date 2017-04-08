@@ -121,6 +121,10 @@ var testdata = []struct {
 	{[]string{"(nthcdr 5 '(a b c))"}, []string{"nil"}},
 	{[]string{"(nthcdr 2 '(a b c . d))"}, []string{"(c . d)"}},
 	{[]string{"(nthcdr 3 '(a b c . d))"}, []string{"d"}},
+	{[]string{"(nth 0 '(a b c))"}, []string{"a"}},
+	{[]string{"(nth 1 '(a b c))"}, []string{"b"}},
+	{[]string{"(nth 2 '(a b c))"}, []string{"c"}},
+	{[]string{"(nth 3 '(a b c))"}, []string{"nil"}},
 }
 
 var baddata = []struct {
