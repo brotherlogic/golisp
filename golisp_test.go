@@ -125,6 +125,9 @@ var testdata = []struct {
 	{[]string{"(nth 1 '(a b c))"}, []string{"b"}},
 	{[]string{"(nth 2 '(a b c))"}, []string{"c"}},
 	{[]string{"(nth 3 '(a b c))"}, []string{"nil"}},
+	{[]string{"(last '(all is forgiven))"}, []string{"(forgiven)"}},
+	{[]string{"(last nil)"}, []string{"nil"}},
+	{[]string{"(last '(a b c . d))"}, []string{"(c . d)"}},
 }
 
 var baddata = []struct {
@@ -160,6 +163,7 @@ var baddata = []struct {
 	{[]string{"(append 'rice '(and beans))"}, []bool{true}, []string{"Error! rice is not a list"}},
 	{[]string{"(reverse 'live)"}, []bool{true}, []string{"Error! Wrong type input"}},
 	{[]string{"(nthcdr 4 '(a b c . d))"}, []bool{true}, []string{"Error! d is not a list"}},
+	{[]string{"(last 'nevermore)"}, []bool{true}, []string{"Error! nevermore is not a list"}},
 }
 
 func TestGolispBad(t *testing.T) {
