@@ -7,24 +7,49 @@ import (
 )
 
 var funcs = map[string]func(*List) (Primitive, error){
-	"cons":    cons,
-	"+":       plus,
-	"equal":   equal,
-	"if":      iff,
-	"symbolp": symbolp,
-	"<":       lessthan,
-	">":       greaterthan,
-	"-":       subtract,
-	"max":     max,
-	"min":     min,
-	"append":  appendf,
-	"reverse": reversef,
-	"cdr":     cdr,
-	"nthcdr":  nthcdr,
-	"nth":     nth,
-	"car":     car,
-	"last":    last,
-	"member":  member,
+	"cons":         cons,
+	"+":            plus,
+	"equal":        equal,
+	"if":           iff,
+	"symbolp":      symbolp,
+	"<":            lessthan,
+	">":            greaterthan,
+	"-":            subtract,
+	"max":          max,
+	"min":          min,
+	"append":       appendf,
+	"reverse":      reversef,
+	"cdr":          cdr,
+	"nthcdr":       nthcdr,
+	"nth":          nth,
+	"car":          car,
+	"last":         last,
+	"member":       member,
+	"intersection": intersection,
+}
+
+func intersectionp(l1, l2 List, build *listNode) {
+
+	if l1.start != nil && !l1.start.value.isNil() {
+		head := l1.start.value
+		if !memberp(head, l2).isNil() {
+			build.value = head
+			build.next = &listNode{}
+			intersectionp(List{start: l1.start.next}, l2, build.next)
+		} else {
+			intersectionp(List{start: l1.start.next}, l2, build)
+		}
+	}
+}
+
+func intersection(l *List) (Primitive, error) {
+	retv := &List{start: &listNode{}}
+	intersectionp(List{start: l.start.value.(List).start}, List{start: l.start.next.value.(List).start}, retv.start)
+
+	if retv.start.value == nil {
+		return &Nil{}, nil
+	}
+	return retv, nil
 }
 
 func memberp(p Primitive, l List) Primitive {

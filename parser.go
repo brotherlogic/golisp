@@ -113,7 +113,7 @@ func (l List) str() string {
 	}
 	node := l.start
 	first := true
-	for node != nil {
+	for node != nil && node.value != nil && !node.value.isNil() {
 		if first {
 			log.Printf("Trying to print %v", node)
 			if node.value != nil {
@@ -121,6 +121,7 @@ func (l List) str() string {
 			}
 			first = false
 		} else {
+			log.Printf("Trying to print next %v", node)
 			if node.single {
 				rep += " . " + node.value.str()
 			} else {
