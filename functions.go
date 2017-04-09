@@ -26,6 +26,41 @@ var funcs = map[string]func(*List) (Primitive, error){
 	"last":         last,
 	"member":       member,
 	"intersection": intersection,
+	"union":        union,
+}
+
+func unionp(l1, l2 List) *List {
+	log.Printf("UNIONP: %v and %v", l1.str(), l2.str())
+	if l2.start != nil && !l2.start.value.isNil() {
+		built := unionp(l1, List{start: l2.start.next})
+		log.Printf("BUILT2: %v but %v", built.str(), l1)
+		if memberp(l2.start.value, l1).isNil() {
+			return &List{start: &listNode{value: l2.start.value, next: built.start}}
+		}
+		return &List{start: built.start}
+	}
+
+	return &List{}
+}
+
+func union(l *List) (Primitive, error) {
+	toadd := unionp(l.start.value.(List), l.start.next.value.(List))
+	log.Printf("TOADD = %v", toadd.str())
+
+	add := &listNode{}
+	built := List{start: add}
+	curr := l.start.value.(List).start
+	for curr != nil {
+		add.value = curr.value
+		add.next = &listNode{}
+		add = add.next
+		curr = curr.next
+	}
+
+	add.value = toadd.start.value
+	add.next = toadd.start.next
+	log.Printf("RETURN %v but %v", built.str(), List{start: add}.str())
+	return built, nil
 }
 
 func intersectionp(l1, l2 List, build *listNode) {

@@ -133,6 +133,9 @@ var testdata = []struct {
 	{[]string{"(intersection '(fred john mary) '(sue mary fred))"}, []string{"(fred mary)"}},
 	{[]string{"(intersection '(a s d f g) '(v w s r a))"}, []string{"(a s)"}},
 	{[]string{"(intersection '(foo bar baz) '(xam gorp bletch))"}, []string{"nil"}},
+	{[]string{"(union '(finger hand arm) '(toe finger foot leg))"}, []string{"(finger hand arm toe foot leg)"}},
+	{[]string{"(union '(fred john mary) '(sue mary fred))"}, []string{"(fred john mary sue)"}},
+	{[]string{"(union '(a s d f g) '(v w s r a))"}, []string{"(a s d f g v w r)"}},
 }
 
 var baddata = []struct {
