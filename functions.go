@@ -24,6 +24,23 @@ var funcs = map[string]func(*List) (Primitive, error){
 	"nth":     nth,
 	"car":     car,
 	"last":    last,
+	"member":  member,
+}
+
+func memberp(p Primitive, l List) Primitive {
+	if l.start != nil && !l.start.value.isNil() {
+		if p.str() == l.start.value.str() {
+			return l
+		}
+		return memberp(p, List{start: l.start.next})
+	}
+
+	return Nil{}
+}
+
+func member(l *List) (Primitive, error) {
+	nl := l.start.next.value.(List)
+	return memberp(l.start.value, nl), nil
 }
 
 func last(l *List) (Primitive, error) {
