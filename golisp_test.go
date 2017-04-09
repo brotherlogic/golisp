@@ -128,6 +128,8 @@ var testdata = []struct {
 	{[]string{"(last '(all is forgiven))"}, []string{"(forgiven)"}},
 	{[]string{"(last nil)"}, []string{"nil"}},
 	{[]string{"(last '(a b c . d))"}, []string{"(c . d)"}},
+	{[]string{"(setf ducks '(huey dewey louie))", "(member 'huey ducks)", "(member 'dewey ducks)", "(member 'louie ducks)", "(member 'mickey ducks)"}, []string{"(huey dewey louie)", "(huey dewey louie)", "(dewey louie)", "(louie)", "nil"}},
+	{[]string{"(defun beforep (x y l) (member y (member x l)))", "(beforep 'not 'whom '(ask not for whom the bell tolls))", "(beforep 'thee 'tolls '(it tolls for thee))"}, []string{"nil", "(whom the bell tolls)", "nil"}},
 }
 
 var baddata = []struct {
