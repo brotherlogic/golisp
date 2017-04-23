@@ -136,6 +136,8 @@ var testdata = []struct {
 	{[]string{"(union '(finger hand arm) '(toe finger foot leg))"}, []string{"(finger hand arm toe foot leg)"}},
 	{[]string{"(union '(fred john mary) '(sue mary fred))"}, []string{"(fred john mary sue)"}},
 	{[]string{"(union '(a s d f g) '(v w s r a))"}, []string{"(a s d f g v w r)"}},
+	{[]string{"(set-difference '(alpha bravo charlie delta) '(bravo charlie))"}, []string{"(alpha delta)"}},
+	{[]string{"(set-difference '(alpha bravo charlie delta) '(echo alpha foxtrot))"}, []string{"(bravo charlie delta)"}},
 }
 
 var baddata = []struct {
