@@ -140,6 +140,8 @@ var testdata = []struct {
 	{[]string{"(set-difference '(alpha bravo charlie delta) '(echo alpha foxtrot))"}, []string{"(bravo charlie delta)"}},
 	{[]string{"(set-difference '(alpha bravo) '(bravo alpha))"}, []string{"nil"}},
 	{[]string{"(setf line1 '(all things in moderation))", "(setf line2 '(moderation in the defence of liberty is not virtue))", "(set-difference line1 line2)", "(set-difference line2 line1)"}, []string{"(all things in moderation)", "(moderation in the defence of liberty is not virtue)", "(all things)", "(the defence of liberty is not virtue)"}},
+	{[]string{"(subsetp '(a i) '(a e i o u))"}, []string{"t"}},
+	{[]string{"(subsetp '(a x) '(a e i o u))"}, []string{"nil"}},
 }
 
 var baddata = []struct {

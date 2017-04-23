@@ -28,6 +28,24 @@ var funcs = map[string]func(*List) (Primitive, error){
 	"intersection":   intersection,
 	"union":          union,
 	"set-difference": setdifference,
+	"subsetp":        subsetp,
+}
+
+func subsetpp(l1, l2 List) *Truth {
+	if l1.start == nil || l1.start.value.isNil() {
+		return &Truth{value: true}
+	}
+
+	if memberp(l1.start.value, l2).isNil() {
+		log.Printf("%v is not a member of %v: %v", l1.start.value.str(), l2.str(), memberp(l1.start.value, l2).str())
+		return &Truth{value: false}
+	}
+
+	return subsetpp(List{start: l1.start.next}, l2)
+}
+
+func subsetp(l *List) (Primitive, error) {
+	return subsetpp(l.start.value.(List), l.start.next.value.(List)), nil
 }
 
 func setdifferencep(l1, l2 List) *List {
