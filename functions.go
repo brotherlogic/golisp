@@ -7,26 +7,43 @@ import (
 )
 
 var funcs = map[string]func(*List) (Primitive, error){
-	"cons":         cons,
-	"+":            plus,
-	"equal":        equal,
-	"if":           iff,
-	"symbolp":      symbolp,
-	"<":            lessthan,
-	">":            greaterthan,
-	"-":            subtract,
-	"max":          max,
-	"min":          min,
-	"append":       appendf,
-	"reverse":      reversef,
-	"cdr":          cdr,
-	"nthcdr":       nthcdr,
-	"nth":          nth,
-	"car":          car,
-	"last":         last,
-	"member":       member,
-	"intersection": intersection,
-	"union":        union,
+	"cons":           cons,
+	"+":              plus,
+	"equal":          equal,
+	"if":             iff,
+	"symbolp":        symbolp,
+	"<":              lessthan,
+	">":              greaterthan,
+	"-":              subtract,
+	"max":            max,
+	"min":            min,
+	"append":         appendf,
+	"reverse":        reversef,
+	"cdr":            cdr,
+	"nthcdr":         nthcdr,
+	"nth":            nth,
+	"car":            car,
+	"last":           last,
+	"member":         member,
+	"intersection":   intersection,
+	"union":          union,
+	"set-difference": setdifference,
+}
+
+func setdifferencep(l1, l2 List) *List {
+	if l1.start != nil && !l1.start.value.isNil() {
+		built := setdifferencep(List{start: l1.start.next}, l2)
+		if memberp(l1.start.value, l2).isNil() {
+			return &List{start: &listNode{value: l1.start.value, next: built.start}}
+		}
+		return built
+	}
+
+	return &List{}
+}
+
+func setdifference(l *List) (Primitive, error) {
+	return setdifferencep(l.start.value.(List), l.start.next.value.(List)), nil
 }
 
 func unionp(l1, l2 List) *List {
