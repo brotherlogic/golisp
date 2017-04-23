@@ -43,7 +43,11 @@ func setdifferencep(l1, l2 List) *List {
 }
 
 func setdifference(l *List) (Primitive, error) {
-	return setdifferencep(l.start.value.(List), l.start.next.value.(List)), nil
+	l2 := setdifferencep(l.start.value.(List), l.start.next.value.(List))
+	if length(*l2).value == 0 {
+		return &Nil{}, nil
+	}
+	return l2, nil
 }
 
 func unionp(l1, l2 List) *List {
