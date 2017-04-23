@@ -134,15 +134,6 @@ func (i *Interpreter) Eval(p Primitive, vs []Variable) (Primitive, error) {
 				return Ratio{numerator: first.(Integer).value, denominator: second.(Integer).value}, nil
 			}
 			return Float{value: first.floatVal() / second.floatVal()}, nil
-		} else if symbol.value == "first" {
-			first, err := i.Eval(l.start.next.value, vs)
-			if err != nil {
-				return nil, err
-			}
-			if first.isList() {
-				v := first.(List).start.value
-				return v, nil
-			}
 		} else if symbol.value == "defun" {
 			op := Operation{name: l.start.next.value.str(),
 				binding: l.start.next.next.value.(List),

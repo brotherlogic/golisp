@@ -142,6 +142,7 @@ var testdata = []struct {
 	{[]string{"(setf line1 '(all things in moderation))", "(setf line2 '(moderation in the defence of liberty is not virtue))", "(set-difference line1 line2)", "(set-difference line2 line1)"}, []string{"(all things in moderation)", "(moderation in the defence of liberty is not virtue)", "(all things)", "(the defence of liberty is not virtue)"}},
 	{[]string{"(subsetp '(a i) '(a e i o u))"}, []string{"t"}},
 	{[]string{"(subsetp '(a x) '(a e i o u))"}, []string{"nil"}},
+	{[]string{"(defun titledp (name) (member (first name) '(mr ms miss mrs)))", "(titledp '(jane doe))", "(titledp '(ms jane doe))"}, []string{"nil", "nil", "(ms miss mrs)"}},
 }
 
 var baddata = []struct {
