@@ -23,6 +23,7 @@ var funcs = map[string]func(*List) (Primitive, error){
 	"nthcdr":         nthcdr,
 	"nth":            nth,
 	"car":            car,
+	"first":          first,
 	"last":           last,
 	"member":         member,
 	"intersection":   intersection,
@@ -138,8 +139,17 @@ func memberp(p Primitive, l List) Primitive {
 }
 
 func member(l *List) (Primitive, error) {
+	log.Printf("MEMBER: %v", l.str())
 	nl := l.start.next.value.(List)
 	return memberp(l.start.value, nl), nil
+}
+
+func first(l *List) (Primitive, error) {
+	log.Printf("FIRST OF %v", l.str())
+	if !l.start.value.isList() {
+		return nil, errors.New("Input is not a list")
+	}
+	return l.start.value.(List).start.value, nil
 }
 
 func last(l *List) (Primitive, error) {
