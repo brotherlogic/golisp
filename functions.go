@@ -30,6 +30,31 @@ var funcs = map[string]func(*List) (Primitive, error){
 	"union":          union,
 	"set-difference": setdifference,
 	"subsetp":        subsetp,
+	"and":            and,
+	"not":            not,
+}
+
+func not(l *List) (Primitive, error) {
+	if l.start.value.isNil() {
+		return Truth{value: true}, nil
+	}
+	return Truth{value: false}, nil
+}
+
+func and(l *List) (Primitive, error) {
+	log.Printf("AND: %v", l.str())
+	if l.len() == 0 {
+		return Truth{value: false}, nil
+	}
+	s := l.start
+	for s != nil && !s.value.isNil() {
+		if !s.value.isList() && !s.value.(Truth).value {
+			return Truth{value: false}, nil
+		}
+		s = s.next
+	}
+
+	return Truth{value: true}, nil
 }
 
 func subsetpp(l1, l2 List) *Truth {

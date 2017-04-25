@@ -143,6 +143,7 @@ var testdata = []struct {
 	{[]string{"(subsetp '(a i) '(a e i o u))"}, []string{"t"}},
 	{[]string{"(subsetp '(a x) '(a e i o u))"}, []string{"nil"}},
 	{[]string{"(defun titledp (name) (member (first name) '(mr ms miss mrs)))", "(titledp '(jane doe))", "(titledp '(ms jane doe))"}, []string{"nil", "nil", "(ms miss mrs)"}},
+	{[]string{"(setf male-first-names '(john kim richard fred george))", "(setf female-first-names '(jane mary wanda barbara kim))", "(defun malep (name) (and (member name male-first-names) (not (member name female-first-names))))", "(defun femalep (name) (and (member name female-first-names) (not (member name male-first-names))))", "(malep 'richard)", "(malep 'barbara)", "(femalep 'barbara)", "(malep 'kim)"}, []string{"(john kim richard fred george)", "(jane mary wanda barbara kim)", "nil", "nil", "t", "nil", "t", "nil"}},
 }
 
 var baddata = []struct {
