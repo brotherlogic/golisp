@@ -48,8 +48,8 @@ _
 ~
 ;=>~
 
-;>>> soft=True
-;>>> optional=True
+;;>>> soft=True
+;;>>> optional=True
 ;; ------- Optional Functionality --------------
 ;; ------- (Not needed for self-hosting) -------
 
