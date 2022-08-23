@@ -8,8 +8,14 @@ import (
 	"testing"
 )
 
-func Test0(t *testing.T) {
-	lines, err := os.ReadFile("testdata/test0.txt")
+func TestAll(t *testing.T) {
+	for _, f := range []string{"test0.txt", "test1.txt"} {
+		runTest(t, f)
+	}
+}
+
+func runTest(t *testing.T, f string) {
+	lines, err := os.ReadFile(fmt.Sprintf("testdata/%v", f))
 	if err != nil {
 		t.Fatalf("Cannot read file: %v", err)
 	}
